@@ -66,6 +66,9 @@ void readFile(std::string filePath)
   if (fileOut.is_open())
   {
    printers::printHeader(fileOut);
+   printers::printMatProperties(fileOut, materials);
+   printers::printPropertySet(fileOut, sections);
+   printers::printElementGroups(fileOut, elements, sections, sets);
    printers::printMeshDefinition(fileOut, nodes.size(), elements.size());
    printers::printNodes(fileOut, nodes);
   // printers::printTest(fileOut, elements);

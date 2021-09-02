@@ -181,6 +181,8 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
  while (true)
  {
 
+  if (stringContain(line, "internal"))
+   return setOfLoadAndBC;
   std::vector<std::string> setNodesBC;
 
   if (stringContain(line, "*Nset"))
@@ -192,25 +194,29 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
    std::copy_if(listNd.begin(), listNd.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
    setNodesBC.insert(setNodesBC.begin(), filtered.begin(), filtered.end());
    std::getline(file, line);
+
    if (stringContain(line, "*Nset"))
    {
     setOfLoadAndBC.emplace_back(setNodesBC, setNameBC);
     continue;
    }
 
-   if (stringContain(line, "internal"))
-    return setOfLoadAndBC;
+   std::vector<std::string> setElemBC;
 
-   if (stringContain(line, "*Elset"))
+   if (stringContain(line, "*Elset") && !stringContain(line, "internal"))
    {
-    std::vector<std::string> setElemBC;
     std::getline(file, line);
     std::vector<std::string> listEl = split(line, ",");
     std::vector<std::string> filtered;
     std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
-    setElemBC.insert(setElemBC.begin(), listEl.begin(), listEl.end());
-    setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
+    setElemBC.insert(setElemBC.begin(), filtered.begin(), filtered.end());
+ //   setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
    }
+
+   if (!setElemBC.empty())
+   setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
+   else 
+    setOfLoadAndBC.emplace_back(setNodesBC, setNameBC);
   }
   std::getline(file, line);
  }
@@ -302,7 +308,6 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
   std::vector<std::string> plastic = split(line, ",");
   yieldStress = plastic[0];
   isVonMises = true;
-  std::getline(file, line);
  }
 
  if (stringContain(line, "*Mohr Coulomb"))
@@ -320,7 +325,6 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
   std::getline(file, line);
   std::vector<std::string> angles = split(line, ",");
   cohesionMohr = angles[0];
-  std::getline(file, line);
  }
 
  if (!isDruckerPrager && !isMohrCoulumb && !isVonMises)
@@ -534,7 +538,7 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
     loadValue = text2[2];
     loads.emplace_back(loadName, loadType, loadSet, loadDirection, loadValue);
     std::getline(file, line);
-    if (stringContain(line, "** Name"))
+    if (stringContain(line, "**"))
      continue;
     std::vector<std::string> text3 = split(line, ",");
     loadSet = text3[0];

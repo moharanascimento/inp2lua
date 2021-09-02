@@ -13,7 +13,8 @@ public:
  static void printMatProperties(std::ofstream& out, std::vector<material>);
  static void printNodes(std::ofstream& out, std::vector<node>);
  static void printMeshDefinition(std::ofstream& out, int nodesSize, int elementsSize);
- static void printTest(std::ofstream& out, std::vector<element>);
+ static void printPropertySet(std::ofstream& out, std::vector<sectionAtributtes>);
+ static void printElementGroups(std::ofstream& out, std::vector<element> elements, std::vector<sectionAtributtes> sections, std::vector<setAtributtes> sets);
 };
 
 
