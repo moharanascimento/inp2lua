@@ -1,5 +1,5 @@
 #include "printers.h"
-#include<sstream>
+#include "utils.h"
 
 void printers::printHeader(std::ofstream& out)
 {
@@ -138,9 +138,7 @@ void printers::printElementGroups(std::ofstream& out, std::vector<element> eleme
    std::vector<int> setElementsId;
    for (std::string elemIdString : sa->setElem)
    {
-    std::stringstream elemIdSS(elemIdString);
-    int elemIdInt = 0;
-    elemIdSS >> elemIdInt;
+    int elemIdInt = utils::string2int(elemIdString);
     setElementsId.push_back(elemIdInt);
    }
 

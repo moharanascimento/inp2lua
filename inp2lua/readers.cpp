@@ -1,5 +1,6 @@
 #include "readers.h"
 #include <algorithm>
+#include "utils.h"
 
 
 // function to compare strings
@@ -61,8 +62,15 @@ std::vector<element> readers::listOfElements(std::ifstream& file, std::string& l
 
  while (std::getline(file, line))
  {
-  if (stringContain(line, "*"))
+  if (stringContain(line, "*Nset"))
    return elements;
+
+  if (stringContain(line, "*Element"))
+  {
+   text = split(line, "=");
+   type = text[1];
+   continue;
+  }
 
   std::vector<std::string> list = split(line, ",");
   std::vector<std::string> incidence;
@@ -75,53 +83,75 @@ std::vector<element> readers::listOfElements(std::ifstream& file, std::string& l
 // read and save sets atributtes
 std::vector<setAtributtes> readers::listOfSets(std::ifstream& file, std::string& line)
 {
+
  std::vector <setAtributtes> setAtributtes;
  std::vector<std::string> setNodes;
  std::vector<std::string> setElem;
  std::string name;
 
- std::vector<std::string> text = split(line, "=");
- name = text[1];
- std::getline(file, line);
- std::vector<std::string> listNd = split(line, ",");
- setNodes.insert(setNodes.begin(), listNd.begin(), listNd.end());
- std::getline(file, line);
-
- if (stringContain(line, "*Elset"))
- {
-  std::getline(file, line);
-  std::vector<std::string> listEl = split(line, ",");
-  setElem.insert(setElem.begin(), listEl.begin(), listEl.end());
- }
-
- setAtributtes.emplace_back(setNodes, setElem, name);
-
  while (std::getline(file, line))
  {
 
-  if (stringContain(line, "**"))
-   return setAtributtes;
+  if (stringContain(line, "*Solid"))
+   break;
 
-  if (stringContain(line, "*Nset"))
-  {
-   setNodes.clear();
-   std::vector<std::string> text = split(line, "=");
-   name = text[1];
-   std::getline(file, line);
+  setNodes.clear();
+
    std::vector<std::string> listNd = split(line, ",");
    setNodes.insert(setNodes.begin(), listNd.begin(), listNd.end());
-   std::getline(file, line);
-  }
+
+   while (std::getline(file, line) && !stringContain(line, "*Elset"))
+   {
+    std::vector<std::string> listNd2 = split(line, ",");
+    setNodes.insert(setNodes.end(), listNd2.begin(), listNd2.end());
+   }
 
   if (stringContain(line, "*Elset"))
   {
    setElem.clear();
-   std::getline(file, line);
-   std::vector<std::string> listEl = split(line, ",");
-   setElem.insert(setElem.begin(), listEl.begin(), listEl.end());
+   std::vector<std::string> text = split(line, "elset=");
+   if (stringContain(text[1], ", "))
+   {
+    name = stringBetween(line, "elset=", ", generate");
+
+    while (std::getline(file, line))
+    {
+     if (stringContain(line, "**"))
+      break;
+
+     if (stringContain(line, "*Nset"))
+      break;
+
+     std::vector<std::string> listEl = split(line, ",");
+     int number1 = utils::string2int(listEl[0]);
+     int number2 = utils::string2int(listEl[1]);
+     for (int i = number1; i <= number2; i++)
+     {
+      std::string str = utils::int2string(i);
+      setElem.push_back(str);
+     }
+    }
+   }
+   else
+   {
+    name = text[1];
+    while (std::getline(file, line))
+    {
+     if (stringContain(line, "**"))
+      break;
+
+     if (stringContain(line, "*Nset"))
+      break;
+     std::vector<std::string> listEl = split(line, ",");
+     setElem.insert(setElem.begin(), listEl.begin(), listEl.end());
+    }
+   }
   }
 
   setAtributtes.emplace_back(setNodes, setElem, name);
+
+  if (stringContain(line, "**"))
+   break;
  }
  return setAtributtes;
 }
@@ -210,12 +240,12 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
     std::vector<std::string> filtered;
     std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
     setElemBC.insert(setElemBC.begin(), filtered.begin(), filtered.end());
- //   setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
+    //   setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
    }
 
    if (!setElemBC.empty())
-   setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
-   else 
+    setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
+   else
     setOfLoadAndBC.emplace_back(setNodesBC, setNameBC);
   }
   std::getline(file, line);
@@ -226,7 +256,7 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
 // read and save surfaces used in Load and BC
 std::vector<surfaceOfLoadAndBC> readers::listOfSurfaces(std::ifstream& file, std::string& line)
 {
-  std::vector <surfaceOfLoadAndBC> surfaces; 
+ std::vector <surfaceOfLoadAndBC> surfaces;
 
  do
  {
