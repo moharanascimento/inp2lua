@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <sstream>
 
+// function to convert string to int
 int utils::string2int(std::string s)
 {
  std::stringstream intValue(s);
@@ -9,6 +10,7 @@ int utils::string2int(std::string s)
  return number;
 }
 
+// function to convert int to string
 std::string utils::int2string(int i)
 {
  std::string str;

@@ -68,9 +68,10 @@ void readFile(std::string filePath)
    printers::printHeader(fileOut);
    printers::printMatProperties(fileOut, materials);
    printers::printPropertySet(fileOut, sections);
-   printers::printElementGroups(fileOut, elements, sections, sets);
    printers::printMeshDefinition(fileOut, nodes.size(), elements.size());
    printers::printNodes(fileOut, nodes);
+   printers::printElementGroups(fileOut, elements, sections, sets);
+   printers::printMeshElements(fileOut, elements, sections, materials, sets);
   // printers::printTest(fileOut, elements);
    fileOut.close();
   }
@@ -79,5 +80,5 @@ void readFile(std::string filePath)
 
 int main()
 {
- readFile("Elem-Teste.inp");
+ readFile("Job-3.inp");
 }

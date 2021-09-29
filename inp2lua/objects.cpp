@@ -22,11 +22,12 @@ setAtributtes::setAtributtes(std::vector<std::string> setNodes, std::vector<std:
  this->name = name;
 }
 
-sectionAtributtes::sectionAtributtes(std::string sectionName, std::string setName, std::string materialName, std::string thickness)
+sectionAtributtes::sectionAtributtes(std::string sectionName, std::string setName, std::string materialName, std::string thickness, int id)
 {
  this->sectionName = sectionName;
  this->setName = setName;
  this->materialName = materialName;
+ this->id = id;
  this->thickness = thickness;
 }
 
@@ -49,25 +50,27 @@ surfaceOfLoadAndBC::surfaceOfLoadAndBC(std::string surfName, std::string surfFac
  this->surfElem = surfElem;
 }
 
-material::material(std::string materialName, std::string youngModulus, std::string poisson)
+material::material(std::string materialName, std::string youngModulus, std::string poisson, int id)
 {
  this->materialName = materialName;
  this->youngModulus = youngModulus;
  this->poisson = poisson;
+ this->id = id;
  this-> type = materialType::ELASTIC;
 }
 
-material::material(std::string materialName, std::string youngModulus, std::string poisson, std::string yieldStress)
+material::material(std::string materialName, std::string youngModulus, std::string poisson, std::string yieldStress, int id)
 {
  this->materialName = materialName;
  this->youngModulus = youngModulus;
  this->poisson = poisson;
  this->yieldStress = yieldStress;
+ this->id = id;
  this->type = materialType::VONMISES;
 }
 
 
-material::material(std::string materialName, std::string youngModulus, std::string poisson, std::string frictionMohr, std::string dilationMohr, std::string cohesionMohr)
+material::material(std::string materialName, std::string youngModulus, std::string poisson, std::string frictionMohr, std::string dilationMohr, std::string cohesionMohr, int id)
 {
  this->materialName = materialName;
  this->youngModulus = youngModulus;
@@ -75,16 +78,18 @@ material::material(std::string materialName, std::string youngModulus, std::stri
  this->frictionMohr = frictionMohr;
  this->dilationMohr = dilationMohr;
  this->cohesionMohr = cohesionMohr;
+ this->id = id;
  this->type = materialType::MOHRCOULOMB;
 }
 
-material::material(std::string materialName, std::string youngModulus, std::string poisson, std::string frictionDrucker, std::string dilationDrucker)
+material::material(std::string materialName, std::string youngModulus, std::string poisson, std::string frictionDrucker, std::string dilationDrucker, int id)
 {
  this->materialName = materialName;
  this->youngModulus = youngModulus;
  this->poisson = poisson;
  this->frictionDrucker = frictionDrucker;
  this->dilationDrucker = dilationDrucker;
+ this->id = id;
  this->type = materialType::DRUCKERPRAGER;
 }
 

@@ -106,6 +106,18 @@ void printers::printPropertySet(std::ofstream& out, std::vector<sectionAtributte
  }
 }
 
+void printers::printMeshDefinition(std::ofstream& out, int nodesSize, int elementsSize)
+{
+ if (out.is_open())
+ {
+  out << "-------------------------------------------------------------" << std::endl;
+  out << "--  Mesh definition" << std::endl;
+  out << "-------------------------------------------------------------" << std::endl;
+  out << "--  Number of nodes: " << nodesSize << std::endl;
+  out << "--  Number of elements: " << elementsSize << std::endl << std::endl;
+ }
+}
+
 void printers::printNodes(std::ofstream& out, std::vector<node> nodes)
 {
  if (out.is_open())
@@ -115,7 +127,7 @@ void printers::printNodes(std::ofstream& out, std::vector<node> nodes)
   {
    out << "\t {" << n.x << " , " << n.y << "}," << std::endl;
   }
-  out << "}" << std::endl;
+  out << "}" << std::endl << std::endl;
  }
 }
 
@@ -126,7 +138,7 @@ void printers::printElementGroups(std::ofstream& out, std::vector<element> eleme
  {
   for (sectionAtributtes s : sections)
   {
-   setAtributtes* sa = nullptr;
+   setAtributtes* sa = nullptr; //pointer init
    for (setAtributtes setAtt : sets)
    {
     if (s.setName == setAtt.name)
@@ -144,9 +156,17 @@ void printers::printElementGroups(std::ofstream& out, std::vector<element> eleme
 
    std::string gemaElementType;
    element e = elements[setElementsId.front() - 1];
+
    if (e.elementType == "CPE4" || e.elementType == "CPE4R" ||
+    e.elementType == "CPE4H" || e.elementType == "CPE4I" ||
+    e.elementType == "CPE4IH" || e.elementType == "CPE4RH" ||
+    e.elementType == "CPS4H" || e.elementType == "CPS4I" ||
+    e.elementType == "CPS4IH" || e.elementType == "CPS4RH" ||
     e.elementType == "CPS4" || e.elementType == "CPS4R" ||
     e.elementType == "CPE8" || e.elementType == "CPE8R" ||
+    e.elementType == "CPE8H" || e.elementType == "CP84I" ||
+    e.elementType == "CPE8IH" || e.elementType == "CPE8RH" ||
+    e.elementType == "CPS8H" || e.elementType == "CPS8RH" ||
     e.elementType == "CPS8" || e.elementType == "CPS8R")
    {
     gemaElementType = "Quadrilateral";
@@ -172,16 +192,85 @@ void printers::printElementGroups(std::ofstream& out, std::vector<element> eleme
  }
 }
 
-
-void printers::printMeshDefinition(std::ofstream& out, int nodesSize, int elementsSize)
+void printers::printMeshElements(std::ofstream& out, std::vector<element> elements, std::vector<sectionAtributtes> sections, std::vector<material> materials, std::vector<setAtributtes> sets)
 {
  if (out.is_open())
  {
-  out << "-------------------------------------------------------------" << std::endl;
-  out << "--  Mesh definition" << std::endl;
-  out << "-------------------------------------------------------------" << std::endl;
-  out << "--  Number of nodes: " << nodesSize << std::endl;
-  out << "--  Number of elements: " << elementsSize << std::endl << std::endl;
+  out << "local mesh_elements = {" << std::endl;
+
+  for (material m : materials)
+  {
+   std::string materialName1 = m.materialName;
+   std::string materialName;
+   int materialPosition = m.id;
+   std::string gemaElementType;
+   std::string gemaElementName;
+   int sectionPosition;
+
+   for (sectionAtributtes s : sections)
+   {
+    std::string sectionMaterialName = s.materialName;
+    sectionPosition = s.id;
+
+    if (materialName1 == sectionMaterialName)
+    {
+     materialName = materialName1;
+
+     setAtributtes* sa = nullptr; //pointer init
+     for (setAtributtes setAtt : sets)
+     {
+      if (s.setName == setAtt.name)
+      {
+       sa = new setAtributtes(setAtt);
+       break;
+      }
+     }
+     std::vector<int> setElementsId;
+     for (std::string elemIdString : sa->setElem)
+     {
+      int elemIdInt = utils::string2int(elemIdString);
+      setElementsId.push_back(elemIdInt);
+     }
+
+     element e = elements[setElementsId.front() - 1];
+
+     if (e.elementType == "CPE4" || e.elementType == "CPE4R" ||
+      e.elementType == "CPE4H" || e.elementType == "CPE4I" ||
+      e.elementType == "CPE4IH" || e.elementType == "CPE4RH" ||
+      e.elementType == "CPS4H" || e.elementType == "CPS4I" ||
+      e.elementType == "CPS4IH" || e.elementType == "CPS4RH" ||
+      e.elementType == "CPS4" || e.elementType == "CPS4R")
+     {
+      gemaElementType = "Quadrilateral";
+      gemaElementName = "'quad4'";
+     }
+     else if (e.elementType == "CPE8" || e.elementType == "CPE8R" ||
+      e.elementType == "CPE8H" || e.elementType == "CP84I" ||
+      e.elementType == "CPE8IH" || e.elementType == "CPE8RH" ||
+      e.elementType == "CPS8H" || e.elementType == "CPS8RH" ||
+      e.elementType == "CPS8" || e.elementType == "CPS8R")
+     {
+      gemaElementType = "Quadrilateral";
+      gemaElementName = "'quad8'";
+     }
+     else if (e.elementType == "CPE3" || e.elementType == "CPE3H" | e.elementType == "CPS3")
+     {
+      gemaElementType = "Triangular";
+      gemaElementName = "'tri3'";
+     }
+     else
+     {
+      gemaElementType = "Triangular";
+      gemaElementName = "'tri6'";
+     }
+     break;
+    }
+    }
+
+   if (!materialName.empty())
+    out << "    {cellType = " << gemaElementName << ", cellGroup = '" << materialName << "_" << gemaElementType << "', cellList = " << materialName << "_" << gemaElementType << "_elements, MatProp =" << materialPosition << ", SecProp =" << sectionPosition << "}," << " -- " << materialName << std::endl;
+  }
+  out << "}" << std::endl << std::endl;
  }
 }
 

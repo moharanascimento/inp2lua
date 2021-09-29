@@ -164,6 +164,7 @@ std::vector<sectionAtributtes> readers::listOfSections(std::ifstream& file, std:
  std::string setName;
  std::string materialName;
  std::string thickness;
+ int id = 1;
 
  std::vector<std::string> text = split(line, ": ");
  sectionName = text[1];
@@ -176,7 +177,7 @@ std::vector<sectionAtributtes> readers::listOfSections(std::ifstream& file, std:
  std::vector<std::string> thick = split(line, ",");
  thickness = thick[0];
 
- sectionAtributtes.emplace_back(sectionName, setName, materialName, thickness);
+ sectionAtributtes.emplace_back(sectionName, setName, materialName, thickness, id++);
 
  while (std::getline(file, line))
  {
@@ -196,7 +197,7 @@ std::vector<sectionAtributtes> readers::listOfSections(std::ifstream& file, std:
    std::vector<std::string> thick = split(line, ",");
    thickness = thick[0];
   }
-  sectionAtributtes.emplace_back(sectionName, setName, materialName, thickness);
+  sectionAtributtes.emplace_back(sectionName, setName, materialName, thickness, id++);
  }
  return sectionAtributtes;
 }
@@ -294,6 +295,7 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
 {
  std::vector <material> materials;
  std::string materialName;
+ std::string materialName1;
  std::string youngModulus;
  std::string poisson;
  std::string yieldStress;
@@ -302,9 +304,10 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
  std::string cohesionMohr;
  std::string frictionDrucker;
  std::string dilationDrucker;
+ int id = 1;
 
  std::vector<std::string> text = split(line, "name=");
- materialName = text[1];
+ materialName1 = text[1];
  std::getline(file, line);
 
  bool isDruckerPrager = false;
@@ -357,24 +360,32 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
   cohesionMohr = angles[0];
  }
 
+ //adiconado dia 29
+ if (stringContain(line, "*Material"))
+ {
+  std::vector<std::string> text = split(line, "name=");
+  materialName = text[1];
+ }
+ //adicionado dia 29
+
  if (!isDruckerPrager && !isMohrCoulumb && !isVonMises)
  {
-  materials.emplace_back(materialName, youngModulus, poisson);
+  materials.emplace_back(materialName1, youngModulus, poisson, id++);
  }
 
  else if (!isDruckerPrager && !isMohrCoulumb && isVonMises)
  {
-  materials.emplace_back(materialName, youngModulus, poisson, yieldStress);
+  materials.emplace_back(materialName1, youngModulus, poisson, yieldStress, id++);
  }
 
  else if (isDruckerPrager && !isMohrCoulumb && !isVonMises)
  {
-  materials.emplace_back(materialName, youngModulus, poisson, frictionDrucker, dilationDrucker);
+  materials.emplace_back(materialName1, youngModulus, poisson, frictionDrucker, dilationDrucker, id++);
  }
 
  else if (!isDruckerPrager && isMohrCoulumb && !isVonMises)
  {
-  materials.emplace_back(materialName, youngModulus, poisson, frictionMohr, dilationMohr, cohesionMohr);
+  materials.emplace_back(materialName1, youngModulus, poisson, frictionMohr, dilationMohr, cohesionMohr, id++);
  }
 
  while (std::getline(file, line))
@@ -444,17 +455,17 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
 
   if (!isDruckerPrager && !isMohrCoulumb)
   {
-   materials.emplace_back(materialName, youngModulus, poisson);
+   materials.emplace_back(materialName, youngModulus, poisson, id++);
   }
 
   else if (isDruckerPrager && !isMohrCoulumb)
   {
-   materials.emplace_back(materialName, youngModulus, poisson, frictionDrucker, dilationDrucker);
+   materials.emplace_back(materialName, youngModulus, poisson, frictionDrucker, dilationDrucker, id++);
   }
 
   else if (!isDruckerPrager && isMohrCoulumb)
   {
-   materials.emplace_back(materialName, youngModulus, poisson, frictionMohr, dilationMohr, cohesionMohr);
+   materials.emplace_back(materialName, youngModulus, poisson, frictionMohr, dilationMohr, cohesionMohr, id++);
   }
 
  }

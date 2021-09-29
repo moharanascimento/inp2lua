@@ -35,10 +35,11 @@ public:
 class sectionAtributtes
 {
 public:
- sectionAtributtes(std::string sectionName, std::string setName, std::string materialName, std::string thickness);
+ sectionAtributtes(std::string sectionName, std::string setName, std::string materialName, std::string thickness, int id);
  std::string sectionName;
  std::string setName;
  std::string materialName;
+ int id;
  std::string thickness;
 };
 
@@ -68,10 +69,10 @@ class material
 public:
  materialType type;
 
- material(std::string materialName, std::string youngModulus, std::string poisson);
- material(std::string materialName, std::string youngModulus, std::string poisson, std::string yieldStress);
- material(std::string materialName, std::string youngModulus, std::string poisson, std::string frictionMohr, std::string dilationMohr, std::string cohesionMohr);
- material(std::string materialName, std::string youngModulus, std::string poisson, std::string frictionDrucker, std::string dilationDrucker); 
+ material(std::string materialName, std::string youngModulus, std::string poisson, int id);
+ material(std::string materialName, std::string youngModulus, std::string poisson, std::string yieldStress, int id);
+ material(std::string materialName, std::string youngModulus, std::string poisson, std::string frictionMohr, std::string dilationMohr, std::string cohesionMohr, int id);
+ material(std::string materialName, std::string youngModulus, std::string poisson, std::string frictionDrucker, std::string dilationDrucker, int id); 
  
  std::string materialName;
  std::string youngModulus;
@@ -82,6 +83,7 @@ public:
  std::string cohesionMohr;
  std::string frictionDrucker;
  std::string dilationDrucker;
+ int id;
 };
 
 class boundaryConditions
