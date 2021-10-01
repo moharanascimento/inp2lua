@@ -245,10 +245,11 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
     setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
    else
     setOfLoadAndBC.emplace_back(setNodesBC, setNameBC);
-
-   if (stringContain(line, "internal"))
-    return setOfLoadAndBC;
   }
+
+  if (stringContain(line, "internal"))
+   return setOfLoadAndBC;
+
   std::getline(file, line);
  }
  return setOfLoadAndBC;
@@ -553,8 +554,11 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
  std::string loadName;
  std::string loadType;
  std::string loadSet;
- std::string loadDirection;
  std::string loadValue;
+ std::string loadDirection1;
+ std::string loadValue1;
+ std::string loadDirection2;
+ std::string loadValue2;
  std::string loadSurface;
 
  do
@@ -575,17 +579,19 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
     std::getline(file, line);
     std::vector<std::string> text2 = split(line, ",");
     loadSet = text2[0];
-    loadDirection = text2[1];
-    loadValue = text2[2];
-    loads.emplace_back(loadName, loadType, loadSet, loadDirection, loadValue);
+    loadDirection1 = text2[1];
+    loadValue1 = text2[2];
     std::getline(file, line);
     if (stringContain(line, "**"))
+    {
+     loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
      continue;
+    }
     std::vector<std::string> text3 = split(line, ",");
     loadSet = text3[0];
-    loadDirection = text3[1];
-    loadValue = text3[2];
-    loads.emplace_back(loadName, loadType, loadSet, loadDirection, loadValue);
+    loadDirection2 = text3[1];
+    loadValue2 = text3[2];
+    loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
    }
 
    else if (stringContain(line, "*Dsload"))

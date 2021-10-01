@@ -125,3 +125,33 @@ Mesh {
     -- Boundary data
     boundaryEdgeData = bc_edges,
 }
+-------------------------------------------------------------
+--  Boundary conditions
+-------------------------------------------------------------
+BoundaryCondition {
+    id   = 'cload',
+    type = 'node concentrated forces',
+    mesh = 'mesh',
+    properties  = {
+        {id = 'f',  description = 'External force applied on the node', unit = 'kN', dim = 2},
+    },
+    nodeValues = {
+        { 5, {  0.,  -10.} }, -- Load-1  
+    }
+}
+
+BoundaryCondition {
+    id   = 'pEdges',
+    type = 'pressure load',
+    mesh = 'mesh',
+    properties  = {
+        {id = 'pl',  description = 'Pressure loading on edges', unit = 'kPa'},
+    },
+    edgeValues = {
+        {Load-2   ,  10.},
+        {Load-3   ,  5.},
+        {Load-4   ,  30.},
+        {Load-5   ,  20.},
+    }
+}
+

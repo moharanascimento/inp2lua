@@ -110,13 +110,15 @@ boundaryConditions::boundaryConditions(std::string bcName, std::string bcType, s
  this->bcAxisymmetric = bcAxisymmetric;
 }
 
-load::load(std::string loadName, std::string loadType, std::string loadSet, std::string loadDirection, std::string loadValue)
+load::load(std::string loadName, std::string loadType, std::string loadSet, std::string loadDirection1, std::string loadValue1, std::string loadDirection2, std::string loadValue2)
 {
  this->loadName = loadName;
  this->loadType = loadType;
  this->loadSet = loadSet;
- this->loadDirection = loadDirection;
- this->loadValue = loadValue;
+ this->loadDirection1 = loadDirection1;
+ this->loadValue1 = loadValue1;
+ this->loadDirection2 = loadDirection2;
+ this->loadValue2 = loadValue2;
 }
 
 load::load(std::string loadName, std::string loadType, std::string loadSurface, std::string loadValue)

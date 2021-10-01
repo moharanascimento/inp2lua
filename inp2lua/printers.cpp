@@ -409,3 +409,97 @@ void printers::printMesh(std::ofstream& out, std::vector<element> elements, std:
   }
  }
 }
+
+void printers::printBoundaryConditions(std::ofstream& out, std::vector<load> loads, std::vector<setOfLoadAndBC> sets, std::vector<boundaryConditions> bc)
+{
+ if (out.is_open())
+ {
+  out << "-------------------------------------------------------------" << std::endl;
+  out << "--  Boundary conditions" << std::endl;
+  out << "-------------------------------------------------------------" << std::endl;
+
+  bool cloadTitle = false;
+  bool pressureTitle = false;
+  bool dispTitle = false;
+
+  for (load l : loads)
+  {
+   if (l.loadType == "Concentrated force")
+   {
+    if (!cloadTitle)
+    {
+     out << "BoundaryCondition {" << std::endl;
+     out << "    id   = 'cload'," << std::endl;
+     out << "    type = 'node concentrated forces'," << std::endl;
+     out << "    mesh = 'mesh'," << std::endl;
+     out << "    properties  = {" << std::endl;
+     out << "        {id = 'f',  description = 'External force applied on the node', unit = 'kN', dim = 2}," << std::endl;
+     out << "    }," << std::endl;
+     out << "    nodeValues = {" << std::endl;
+     cloadTitle = true;
+    }
+
+    for (setOfLoadAndBC set : sets)
+    {
+     if (set.setNameBC == l.loadSet)
+     {
+      for (std::string node : set.setNodesBC)
+      {
+       if (l.loadDirection2.empty() && l.loadDirection1 == " 1")
+       {
+        out << "        {" << node << ",";
+        out << " { " << l.loadValue1 << ", 0} }, -- " << l.loadName << std::endl;
+       }
+       else if (l.loadDirection2.empty() && l.loadDirection1 == " 2")
+       {
+        out << "        {" << node << ",";
+        out << " { 0," << l.loadValue1 << "} }, -- " << l.loadName << std::endl;
+       }
+       else if (l.loadDirection1 == " 1" && l.loadDirection2 == " 2")
+       {
+        out << "        {" << node << ",";
+        out << " { " << l.loadValue1 << ", " << l.loadValue2 << "} }, -- " << l.loadName << std::endl;
+       }
+       else if (l.loadDirection1 == " 2" && l.loadDirection2 == " 1")
+       {
+        out << "        {" << node << ",";
+        out << " { " << l.loadValue2 << ", " << l.loadValue1 << "} }, -- " << l.loadName << std::endl;
+       }
+      }
+     }
+    }
+    out << "    }" << std::endl;
+    out << "}" << std::endl << std::endl;
+   }
+
+   if (l.loadType == "Pressure")
+   {
+    if (!pressureTitle)
+    {
+     out << "BoundaryCondition {" << std::endl;
+     out << "    id   = 'pEdges'," << std::endl;
+     out << "    type = 'pressure load'," << std::endl;
+     out << "    mesh = 'mesh'," << std::endl;
+     out << "    properties  = {" << std::endl;
+     out << "        {id = 'pl',  description = 'Pressure loading on edges', unit = 'kPa'}," << std::endl;
+     out << "    }," << std::endl;
+     out << "    edgeValues = {" << std::endl;
+     pressureTitle = true;
+    }
+
+     out << "        {" << l.loadName << " , " << l.loadValue << "}," << std::endl;
+   }
+  }
+
+  if (pressureTitle)
+  {
+   out << "    }" << std::endl;
+   out << "}" << std::endl << std::endl; 
+  }
+
+  for (boundaryConditions boundCond : bc)
+  {
+
+  }
+ }
+}

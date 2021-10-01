@@ -103,15 +103,18 @@ public:
 class load
 {
 public:
- load(std::string loadName, std::string loadType, std::string loadSet, std::string loadDirection, std::string loadValue);
+ load(std::string loadName, std::string loadType, std::string loadSet, std::string loadDirection1, std::string loadValue1, std::string loadDirection2, std::string loadValue2);
  load(std::string loadName, std::string loadType, std::string loadSurface, std::string loadValue); 
  
  std::string loadName;
  std::string loadType;
  std::string loadSet;
- std::string loadDirection;
  std::string loadSurface;
+ std::string loadDirection1;
  std::string loadValue;
+ std::string loadValue1;
+ std::string loadDirection2;
+ std::string loadValue2;
 };
 
 #endif
