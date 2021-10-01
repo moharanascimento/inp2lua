@@ -89,14 +89,16 @@ public:
 class boundaryConditions
 {
 public:
- boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcDirection, std::string bcValue);
+ boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcDirection1, std::string bcValue1, std::string bcDirection2, std::string bcValue2);
  boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcAxisymmetric);
 
  std::string bcName;
  std::string bcType;
  std::string bcSet;
- std::string bcDirection;
- std::string bcValue;
+ std::string bcDirection1;
+ std::string bcValue1;
+ std::string bcDirection2;
+ std::string bcValue2;
  std::string bcAxisymmetric;
 };
 

@@ -93,13 +93,15 @@ material::material(std::string materialName, std::string youngModulus, std::stri
  this->type = materialType::DRUCKERPRAGER;
 }
 
-boundaryConditions::boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcDirection, std::string bcValue)
+boundaryConditions::boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcDirection1, std::string bcValue1, std::string bcDirection2, std::string bcValue2)
 {
  this->bcName = bcName;
  this->bcType = bcType;
  this->bcSet = bcSet;
- this->bcDirection = bcDirection;
- this->bcValue = bcValue;
+ this->bcDirection1 = bcDirection1;
+ this->bcValue1 = bcValue1;
+ this->bcDirection2 = bcDirection2;
+ this->bcValue2 = bcValue2;
 }
 
 boundaryConditions::boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcAxisymmetric)

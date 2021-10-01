@@ -480,16 +480,17 @@ std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream&
  std::string bcName;
  std::string bcType;
  std::string bcSet;
- std::string bcDirection;
- std::string bcValue;
+ std::string bcDirection1;
+ std::string bcValue1;
+ std::string bcDirection2;
+ std::string bcValue2;
  std::string bcAxisymmetric;
  bool isAxisymmetric = false;
- bool isPrescribedDisplacement = false;
- bool isFixed = false;
+ //bool isPrescribedDisplacement = false;
+ //bool isFixed = false;
 
- while (std::getline(file, line))
+ do
  {
-
   if (stringContain(line, "** LOADS"))
    return boundaryConditions;
 
@@ -501,49 +502,95 @@ std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream&
    std::getline(file, line);
   }
 
-  if (stringContain(line, "*Boundary"))
-  {
-   while (std::getline(file, line))
+   if (stringContain(line, "*Boundary"))
    {
+    std::getline(file, line);
     std::vector<std::string> datas = split(line, ",");
     bcSet = datas[0];
 
-    if (stringContain(line, "**"))
-    {
-     break;
-    }
-
     if (datas.size() == 3)
     {
-     bcDirection = datas[1];
-     bcValue = "0";
-     isFixed = true;
+     bcDirection1 = datas[1];
+     bcValue1 = "0";
+     std::getline(file, line);
+
+     if (stringContain(line, "** Name"))
+     {
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      bcName = stringBetween(line, "** Name: ", " Type");
+      std::vector<std::string> type = split(line, "Type: ");
+      bcType = type[1];
+      continue;
+     }
+
+     if (stringContain(line, "**"))
+     {
+      boundaryConditions.emplace_back(bcName,bcType,bcSet,bcDirection1,bcValue1,bcDirection2,bcValue2);
+      continue;
+     }
+     std::vector<std::string> datas2 = split(line, ",");
+     if (datas2.size() == 3)
+     {
+      bcDirection2 = datas2[1];
+      bcValue2 = "0";
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+     }
+     if (datas2.size() == 4)
+     {
+      bcDirection2 = datas2[1];
+      bcValue2 = datas2[3];
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+     }
     }
 
     if (datas.size() == 4)
     {
-     bcDirection = datas[1];
-     bcValue = datas[3];
-     isPrescribedDisplacement = true;
+     bcDirection1 = datas[1];
+     bcValue1 = datas[3];
+     std::getline(file, line);
+
+     if (stringContain(line, "** Name"))
+     {
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      bcName = stringBetween(line, "** Name: ", " Type");
+      std::vector<std::string> type = split(line, "Type: ");
+      bcType = type[1];
+      continue;
+     }
+
+     if (stringContain(line, "**"))
+     {
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      continue;
+     }
+     std::vector<std::string> datas2 = split(line, ",");
+     if (datas2.size() == 3)
+     {
+      bcDirection2 = datas2[1];
+      bcValue2 = "0";
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+     }
+     else if (datas2.size() == 4)
+     {
+      bcDirection2 = datas2[1];
+      bcValue2 = datas2[3];
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+     }
     }
+
+    bcDirection1.clear();
+    bcDirection2.clear();
+    bcValue1.clear();
+    bcValue2.clear();
+
 
     if (datas.size() == 2)
     {
      bcAxisymmetric = datas[1];
-    }
-
-    if (isPrescribedDisplacement || isFixed)
-    {
-     boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection, bcValue);
-    }
-
-    else if (isAxisymmetric)
-    {
      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcAxisymmetric);
     }
    }
-  }
- }
+ } while (std::getline(file, line));
  return boundaryConditions;
 }
 
