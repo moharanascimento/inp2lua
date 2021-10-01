@@ -60,8 +60,7 @@ void readFile(std::string filePath)
    {
     loads = readers::listOfLoads(file, line);
    }
-  }
-  file.close();
+  }  file.close();
   std::ofstream fileOut("Modelo.lua");
   if (fileOut.is_open())
   {
@@ -72,7 +71,7 @@ void readFile(std::string filePath)
    printers::printNodes(fileOut, nodes);
    printers::printElementGroups(fileOut, elements, sections, sets);
    printers::printMeshElements(fileOut, elements, sections, materials, sets);
-  // printers::printTest(fileOut, elements);
+   printers::printBCEdges(fileOut, loads, surface);
    fileOut.close();
   }
  }

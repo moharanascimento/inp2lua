@@ -26,10 +26,10 @@ void printers::printMatProperties(std::ofstream& out, std::vector<material> mate
   out << "    properties  = {" << std::endl;
   out << "        {id = 'E'  , description = 'Elastic modulus'           , unit = 'kPa'}," << std::endl;
   out << "        {id = 'nu' , description = 'Poisson ratio'             , unit = ''   }," << std::endl;
-  
+
   bool hasMohrCoulomb = false;
   bool hasDruckerPrager = false;
-  bool hasVonMises =false;
+  bool hasVonMises = false;
 
   for (material m : materials)
   {
@@ -99,7 +99,7 @@ void printers::printPropertySet(std::ofstream& out, std::vector<sectionAtributte
   for (sectionAtributtes s : sections)
   {
    out << "        -- " << s.materialName << std::endl;
-   out << "       { h =    " << s.thickness<< " }," << std::endl;
+   out << "       { h =    " << s.thickness << " }," << std::endl;
   }
   out << "    }" << std::endl;
   out << "}" << std::endl << std::endl;
@@ -131,7 +131,7 @@ void printers::printNodes(std::ofstream& out, std::vector<node> nodes)
  }
 }
 
-void printers::printElementGroups(std::ofstream& out, std::vector<element> elements, 
+void printers::printElementGroups(std::ofstream& out, std::vector<element> elements,
  std::vector<sectionAtributtes> sections, std::vector<setAtributtes> sets)
 {
  if (out.is_open())
@@ -176,7 +176,7 @@ void printers::printElementGroups(std::ofstream& out, std::vector<element> eleme
     gemaElementType = "Triangular";
    }
 
-   out << "local " <<s.materialName << "_" << gemaElementType << "_elements = {" << std::endl;
+   out << "local " << s.materialName << "_" << gemaElementType << "_elements = {" << std::endl;
    for (int idElem : setElementsId)
    {
     element e = elements[idElem - 1];
@@ -265,7 +265,7 @@ void printers::printMeshElements(std::ofstream& out, std::vector<element> elemen
      }
      break;
     }
-    }
+   }
 
    if (!materialName.empty())
     out << "    {cellType = " << gemaElementName << ", cellGroup = '" << materialName << "_" << gemaElementType << "', cellList = " << materialName << "_" << gemaElementType << "_elements, MatProp =" << materialPosition << ", SecProp =" << sectionPosition << "}," << " -- " << materialName << std::endl;
@@ -274,5 +274,37 @@ void printers::printMeshElements(std::ofstream& out, std::vector<element> elemen
  }
 }
 
+void printers::printBCEdges(std::ofstream& out, std::vector<load> loads, std::vector<surfaceOfLoadAndBC> surfaces)
+{
+ if (out.is_open())
+ {
+  if (surfaces.empty())
+   return;
 
+  out << "local bc_edges = {" << std::endl;
 
+  for (surfaceOfLoadAndBC s : surfaces)
+  {
+   std::string surfaceName = s.surfName;
+   std::string surfaceFace = s.surfFace;
+
+   for (load l : loads)
+   {
+    if (l.loadType == "Pressure" && l.loadSurface == surfaceName)
+    {
+
+     out << "    {id = '" << l.loadName << "'," << std::endl;
+     out << "     cellList = {" << std::endl;
+
+     for (std::string e : s.surfElem)
+     {
+      out << "        {" << e << " , " << surfaceFace << "}," << std::endl;
+     }
+
+     out << "    }}," << std::endl;
+    }
+   }
+  }
+  out << "}" << std::endl;
+ }
+}

@@ -16,6 +16,7 @@ public:
  static void printPropertySet(std::ofstream& out, std::vector<sectionAtributtes>);
  static void printElementGroups(std::ofstream& out, std::vector<element> elements, std::vector<sectionAtributtes> sections, std::vector<setAtributtes> sets);
  static void printMeshElements(std::ofstream& out, std::vector<element> elements, std::vector<sectionAtributtes> sections, std::vector<material>, std::vector<setAtributtes> sets);
+ static void printBCEdges(std::ofstream& out, std::vector<load> loads, std::vector<surfaceOfLoadAndBC> surfaces);
 };
 
 

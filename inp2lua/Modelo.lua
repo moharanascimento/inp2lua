@@ -74,3 +74,23 @@ local mesh_elements = {
     {cellType = 'quad4', cellGroup = 'Material-2_Quadrilateral', cellList = Material-2_Quadrilateral_elements, MatProp =2, SecProp =1}, -- Material-2
 }
 
+local bc_edges = {
+    {id = 'Load-2  ',
+     cellList = {
+        { 3 , 3},
+        { 4 , 3},
+    }},
+    {id = 'Load-3  ',
+     cellList = {
+        { 3 , 4},
+    }},
+    {id = 'Load-4  ',
+     cellList = {
+        { 1 , 3},
+        { 2 , 3},
+    }},
+    {id = 'Load-5  ',
+     cellList = {
+        { 4 , 2},
+    }},
+}

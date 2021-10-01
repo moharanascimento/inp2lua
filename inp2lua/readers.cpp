@@ -212,8 +212,6 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
  while (true)
  {
 
-  if (stringContain(line, "internal"))
-   return setOfLoadAndBC;
   std::vector<std::string> setNodesBC;
 
   if (stringContain(line, "*Nset"))
@@ -241,13 +239,15 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
     std::vector<std::string> filtered;
     std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
     setElemBC.insert(setElemBC.begin(), filtered.begin(), filtered.end());
-    //   setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
    }
 
    if (!setElemBC.empty())
     setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
    else
     setOfLoadAndBC.emplace_back(setNodesBC, setNameBC);
+
+   if (stringContain(line, "internal"))
+    return setOfLoadAndBC;
   }
   std::getline(file, line);
  }
