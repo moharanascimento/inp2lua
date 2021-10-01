@@ -305,6 +305,107 @@ void printers::printBCEdges(std::ofstream& out, std::vector<load> loads, std::ve
     }
    }
   }
-  out << "}" << std::endl;
+  out << "}" << std::endl << std::endl;
+ }
+}
+
+void printers::printMesh(std::ofstream& out, std::vector<element> elements, std::vector<surfaceOfLoadAndBC> surfaces)
+{
+ if (out.is_open())
+ {
+  out << "Mesh {" << std::endl;
+  out << "    -- General mesh attributes" << std::endl;
+  out << "    id          = 'mesh'," << std::endl;
+  out << "    typeName    = 'GemaMesh.elem'," << std::endl;
+  out << "    description = 'mesh discretization'," << std::endl;
+  out << "    " << std::endl;
+  out << "    -- Mesh dimensions" << std::endl;
+  out << "    coordinateDim  =   2," << std::endl;
+  out << "    coordinateUnit = 'm'," << std::endl;
+  out << "    " << std::endl;
+  out << "    -- State vars stored in this mesh (per node)" << std::endl;
+  out << "    stateVars = { 'u',}," << std::endl;
+  out << "    " << std::endl;
+  out << "    -- Mesh node coordinates" << std::endl;
+  out << "    nodeData = mesh_nodes," << std::endl;
+  out << "    " << std::endl;
+  out << "    -- Element properties" << std::endl;
+  out << "    cellProperties = {'MatProp', 'SecProp'}," << std::endl;
+  out << "    " << std::endl;
+  out << "    -- Element data" << std::endl;
+  out << "    cellData = mesh_elements," << std::endl;
+  out << "    " << std::endl;
+  out << "    -- IntegrationRules" << std::endl;
+  out << "    elementRules = {" << std::endl;
+
+  bool hasQuad4 = false;
+  bool hasQuad4R = false;
+  bool hasQuad8 = false;
+  bool hasQuad8R = false;
+  bool hasTri3 = false;
+  bool hasTri6 = false;
+
+  for (element e : elements)
+  {
+
+   if (e.elementType == "CPE4R" || e.elementType == "CPE4RH" ||
+       e.elementType == "CPS4RH" ||e.elementType == "CPS4R")
+   {
+    hasQuad4R = true;
+   }
+   else if (e.elementType == "CPE4" || e.elementType == "CPS4H" ||
+    e.elementType == "CPE4H" || e.elementType == "CPE4I" ||
+    e.elementType == "CPE4IH" || e.elementType == "CPS4IH" ||
+    e.elementType == "CPS4")
+   {
+    hasQuad4 = true;
+   }
+   else if (e.elementType == "CPE8R" || e.elementType == "CPE8RH" ||
+            e.elementType == "CPS8RH" || e.elementType == "CPS8R")
+   {
+    hasQuad8 = true;
+   }
+   else if (e.elementType == "CPE8" || e.elementType == "CPE8H" || 
+    e.elementType == "CPE8IH" || e.elementType == "CP84I" ||
+    e.elementType == "CPS8H" || e.elementType == "CPS8")
+   {
+    hasQuad8 = true;
+   }
+   else if (e.elementType == "CPE3" || e.elementType == "CPE3H" | e.elementType == "CPS3")
+   {
+    hasTri3 = true;
+   }
+   else
+   {
+    hasTri6 = true;
+   }
+  }
+
+  out << "        { ";
+
+  if (hasQuad4)
+   out << "quad4 = 2, ";
+  if (hasQuad4R)
+   out << "quad4 = 1, ";
+  if (hasQuad8)
+   out << "quad8 = 3, ";
+  if (hasQuad8R)
+   out << "quad8 = 2, ";
+  if (hasTri3)
+   out << "tri3 = 1, ";
+  if (hasTri6)
+   out << "tri6 = 3, ";
+
+  out << "}," << std::endl;
+  out << "    }," << std::endl << std::endl;
+
+  if (surfaces.empty())
+   out << "}";
+  else
+  {
+   out << "    -- Boundary data" << std::endl;
+   out << "    boundaryEdgeData = bc_edges," << std::endl;
+   out << "}" << std::endl;
+  }
  }
 }

@@ -94,3 +94,34 @@ local bc_edges = {
         { 4 , 2},
     }},
 }
+
+Mesh {
+    -- General mesh attributes
+    id          = 'mesh',
+    typeName    = 'GemaMesh.elem',
+    description = 'mesh discretization',
+    
+    -- Mesh dimensions
+    coordinateDim  =   2,
+    coordinateUnit = 'm',
+    
+    -- State vars stored in this mesh (per node)
+    stateVars = { 'u',},
+    
+    -- Mesh node coordinates
+    nodeData = mesh_nodes,
+    
+    -- Element properties
+    cellProperties = {'MatProp', 'SecProp'},
+    
+    -- Element data
+    cellData = mesh_elements,
+    
+    -- IntegrationRules
+    elementRules = {
+        { quad4 = 1, },
+    },
+
+    -- Boundary data
+    boundaryEdgeData = bc_edges,
+}
