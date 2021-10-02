@@ -278,9 +278,16 @@ void printers::printBCEdges(std::ofstream& out, std::vector<load> loads, std::ve
 {
  if (out.is_open())
  {
-  if (surfaces.empty())
-   return;
 
+  bool hasPressure = false;
+
+  for (load p : loads)
+  {
+   if (p.loadType == "Pressure")
+    hasPressure = true;
+  }
+
+  if (hasPressure)
   out << "local bc_edges = {" << std::endl;
 
   for (surfaceOfLoadAndBC s : surfaces)
@@ -305,11 +312,13 @@ void printers::printBCEdges(std::ofstream& out, std::vector<load> loads, std::ve
     }
    }
   }
+
+  if (hasPressure)
   out << "}" << std::endl << std::endl;
  }
 }
 
-void printers::printMesh(std::ofstream& out, std::vector<element> elements, std::vector<surfaceOfLoadAndBC> surfaces)
+void printers::printMesh(std::ofstream& out, std::vector<element> elements, std::vector<surfaceOfLoadAndBC> surfaces, std::vector<load> loads)
 {
  if (out.is_open())
  {
@@ -397,15 +406,25 @@ void printers::printMesh(std::ofstream& out, std::vector<element> elements, std:
    out << "tri6 = 3, ";
 
   out << "}," << std::endl;
-  out << "    }," << std::endl << std::endl;
+  out << "    }," << std::endl;
 
-  if (surfaces.empty())
-   out << "}";
+  bool hasPressure = false;
+
+  for (load p : loads)
+  {
+   if (p.loadType == "Pressure")
+    hasPressure = true;
+  }
+
+  if (!hasPressure)
+   out << "}" << std::endl <<std::endl;
+
   else
   {
+   out << std::endl;
    out << "    -- Boundary data" << std::endl;
    out << "    boundaryEdgeData = bc_edges," << std::endl;
-   out << "}" << std::endl;
+   out << "}" << std::endl << std::endl;
   }
  }
 }
@@ -499,6 +518,20 @@ void printers::printBoundaryConditions(std::ofstream& out, std::vector<load> loa
 
   for (boundaryConditions boundCond : bc)
   {
+   if (!dispTitle)
+   {
+    out << "BoundaryCondition {" << std::endl;
+    out << "    id   = 'disp'," << std::endl;
+    out << "    type = 'node displacements'," << std::endl;
+    out << "    mesh = 'mesh'," << std::endl;
+    out << "    properties  = {" << std::endl;
+    out << "        {id = 'ux',  description = 'Fixed node displacement in the X direction', unit = 'm', defVal = -9999}," << std::endl;
+    out << "        {id = 'uy',  description = 'Fixed node displacement in the Y direction', unit = 'm', defVal = -9999}," << std::endl;
+    out << "    }," << std::endl;
+    out << "    nodeValues = {" << std::endl;
+    dispTitle = true;
+   }
+
 
   }
  }

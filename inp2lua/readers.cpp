@@ -15,8 +15,8 @@ bool readers::stringContain(std::string s1, std::string s2)
 std::string readers::stringBetween(std::string line, std::string firstDelimiter, std::string lastDelimiter)
 {
  unsigned first = line.find(firstDelimiter);
- unsigned last = line.find(lastDelimiter);
- std::string stringBetween = line.substr(first + firstDelimiter.length(), last - first - firstDelimiter.length());
+ unsigned last = line.find(lastDelimiter, first+firstDelimiter.size());
+ std::string stringBetween = line.substr(first + firstDelimiter.size(), last - first - firstDelimiter.size());
  return stringBetween;
 }
 
@@ -271,21 +271,26 @@ std::vector<surfaceOfLoadAndBC> readers::listOfSurfaces(std::ifstream& file, std
 
   if (stringContain(line, "*Elset"))
   {
+   surfName = stringBetween(line, "elset=_", "_");
+   std::vector<std::string> FaceEl = split(line, ", internal");
+   surfFace = FaceEl[0].back();
    std::getline(file, line);
    std::vector<std::string> listEl = split(line, ",");
    std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(surfElem), [](std::string s){return !s.empty(); });
-   std::getline(file, line);
+   surfaces.emplace_back(surfName, surfFace, surfElem);
+  // std::getline(file, line);
   }
 
   if (stringContain(line, "*Surface"))
   {
-   std::vector<std::string> name = split(line, "name=");
-   surfName = name[1];
-   std::getline(file, line);
-   std::vector<std::string> face = split(line, ",");
-   std::vector<std::string> numberOfFace = split(face[1], "S");
-   surfFace = numberOfFace[1];
-   surfaces.emplace_back(surfName, surfFace, surfElem);
+   continue;
+ //  std::vector<std::string> name = split(line, "name=");
+//   surfName = name[1];
+  // std::getline(file, line);
+ //  std::vector<std::string> face = split(line, ",");
+ //  std::vector<std::string> numberOfFace = split(face[1], "S");
+ //  surfFace = numberOfFace[1];
+//   surfaces.emplace_back(surfName, surfFace, surfElem);
   }
  } while (std::getline(file, line));
  return surfaces;
@@ -619,21 +624,30 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
    std::vector<std::string> type = split(line, "Type: ");
    loadType = type[1];
    std::getline(file, line);
+  }
 
-   if (stringContain(line, "*Cload"))
-   {
+  if (stringContain(line, "*Cload"))
+  {
+   std::getline(file, line);
+   std::vector<std::string> text2 = split(line, ",");
+   loadSet = text2[0];
+   loadDirection1 = text2[1];
+   loadValue1 = text2[2];
+   std::getline(file, line);
 
-    std::getline(file, line);
-    std::vector<std::string> text2 = split(line, ",");
-    loadSet = text2[0];
-    loadDirection1 = text2[1];
-    loadValue1 = text2[2];
-    std::getline(file, line);
-    if (stringContain(line, "**"))
+    if (stringContain(line, "** Name"))
     {
      loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
+     loadName = stringBetween(line, "** Name: ", " Type");
+     std::vector<std::string> type = split(line, "Type: ");
+     loadType = type[1];
      continue;
     }
+
+    if (stringContain(line, "**"))
+     loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
+     continue;
+
     std::vector<std::string> text3 = split(line, ",");
     loadSet = text3[0];
     loadDirection2 = text3[1];
@@ -649,7 +663,6 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
     loadValue = text[2];
     loads.emplace_back(loadName, loadType, loadSurface, loadValue);
    }
-  }
  } while (std::getline(file, line));
  return loads;
 }

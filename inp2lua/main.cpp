@@ -72,7 +72,7 @@ void readFile(std::string filePath)
    printers::printElementGroups(fileOut, elements, sections, sets);
    printers::printMeshElements(fileOut, elements, sections, materials, sets);
    printers::printBCEdges(fileOut, loads, surface);
-   printers::printMesh(fileOut, elements, surface);
+   printers::printMesh(fileOut, elements, surface, loads);
    printers::printBoundaryConditions(fileOut, loads,setLBC, boundaryConditions);
    fileOut.close();
   }
