@@ -284,13 +284,6 @@ std::vector<surfaceOfLoadAndBC> readers::listOfSurfaces(std::ifstream& file, std
   if (stringContain(line, "*Surface"))
   {
    continue;
- //  std::vector<std::string> name = split(line, "name=");
-//   surfName = name[1];
-  // std::getline(file, line);
- //  std::vector<std::string> face = split(line, ",");
- //  std::vector<std::string> numberOfFace = split(face[1], "S");
- //  surfFace = numberOfFace[1];
-//   surfaces.emplace_back(surfName, surfFace, surfElem);
   }
  } while (std::getline(file, line));
  return surfaces;
@@ -453,13 +446,12 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
   if (stringContain(line, "*Mohr Coulomb Hardening"))
   {
    std::getline(file, line);
+  // std::getline(file, line);
    std::vector<std::string> angles = split(line, ",");
-   frictionMohr = angles[0];
-   dilationMohr = angles[1];
-   std::getline(file, line);
+   cohesionMohr = angles[0];
   }
 
-  if (!isDruckerPrager && !isMohrCoulumb)
+  if (!isDruckerPrager && !isMohrCoulumb && !isVonMises)
   {
    materials.emplace_back(materialName, youngModulus, poisson, id++);
   }
@@ -474,6 +466,10 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
    materials.emplace_back(materialName, youngModulus, poisson, frictionMohr, dilationMohr, cohesionMohr, id++);
   }
 
+  else if (isVonMises)
+  {
+   materials.emplace_back(materialName, youngModulus, poisson, yieldStress, id++);
+  }
  }
  return materials;
 }
@@ -618,9 +614,9 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
   if (stringContain(line, "** OUTPUT"))
    return loads;
 
-  if (stringContain(line, "** Name"))
+  if (stringContain(line, "Type"))
   {
-   loadName = stringBetween(line, "** Name: ", " Type");
+   loadName = stringBetween(line, "Name: ", " Type");
    std::vector<std::string> type = split(line, "Type: ");
    loadType = type[1];
    std::getline(file, line);
@@ -635,18 +631,20 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
    loadValue1 = text2[2];
    std::getline(file, line);
 
-    if (stringContain(line, "** Name"))
+    if (stringContain(line, "Type"))
     {
      loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
-     loadName = stringBetween(line, "** Name: ", " Type");
+     loadName = stringBetween(line, "Name: ", " Type");
      std::vector<std::string> type = split(line, "Type: ");
      loadType = type[1];
      continue;
     }
 
     if (stringContain(line, "**"))
+    {
      loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
      continue;
+    }
 
     std::vector<std::string> text3 = split(line, ",");
     loadSet = text3[0];
@@ -658,6 +656,14 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
    else if (stringContain(line, "*Dsload"))
    {
     std::getline(file, line);
+    if (stringContain(line, "**"))
+    {
+  //   loads.emplace_back(loadName, loadType, loadSurface, loadValue);
+     loadName = stringBetween(line, "Name: ", " Type");
+     std::vector<std::string> type = split(line, "Type: ");
+     loadType = type[1];
+     continue;
+    }
     std::vector<std::string> text = split(line, ",");
     loadSurface = text[0];
     loadValue = text[2];

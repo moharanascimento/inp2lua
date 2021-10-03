@@ -74,6 +74,7 @@ void readFile(std::string filePath)
    printers::printBCEdges(fileOut, loads, surface);
    printers::printMesh(fileOut, elements, surface, loads);
    printers::printBoundaryConditions(fileOut, loads,setLBC, boundaryConditions);
+   printers::printSignature(fileOut);
    fileOut.close();
   }
  }
