@@ -104,22 +104,87 @@ std::vector<setAtributtes> readers::listOfSets(std::ifstream& file, std::string&
  std::vector<std::string> setNodes;
  std::vector<std::string> setElem;
  std::string name;
+ std::string nameAux;
 
- while (std::getline(file, line))
+ do
  {
 
   if (stringContain(line, "*Solid"))
    break;
 
+  std::vector<std::string> text = split(line, ",");
+
   setNodes.clear();
 
+  if (text.size() > 3)
+  {
    std::vector<std::string> listNd = split(line, ",");
    setNodes.insert(setNodes.begin(), listNd.begin(), listNd.end());
 
-   while (std::getline(file, line) && !stringContain(line, "*Elset"))
+   while (std::getline(file, line))
    {
-    std::vector<std::string> listNd2 = split(line, ",");
-    setNodes.insert(setNodes.end(), listNd2.begin(), listNd2.end());
+    if (stringContain(line, "**"))
+     break;
+
+    if (stringContain(line, "*Nset"))
+     break;
+
+    if (stringContain(line, "*Elset"))
+     break;
+
+    std::vector<std::string> listNd = split(line, ",");
+    setNodes.insert(setNodes.begin(), listNd.begin(), listNd.end());
+   }
+  }
+
+  else if (text.size() == 3)
+  {
+   if (stringContain(text[2], "generate"))
+   {
+    name = stringBetween(line, "nset=", " generate");
+
+    while (std::getline(file, line))
+    {
+     if (stringContain(line, "**"))
+      break;
+
+     if (stringContain(line, "*Nset"))
+      break;
+
+     if (stringContain(line, "*Elset"))
+      break;
+
+     std::vector<std::string> listNd = split(line, ",");
+     int number1 = utils::string2int(listNd[0]);
+     int number2 = utils::string2int(listNd[1]);
+     for (int i = number1; i <= number2; i++)
+     {
+      std::string str = utils::int2string(i);
+      setNodes.push_back(str);
+     }
+    }
+   }
+  }
+   else
+   {
+    nameAux = text[1];
+    std::vector<std::string> Aux = split(nameAux, " nset=");
+    name = Aux[1];
+
+    while (std::getline(file, line))
+    {
+     if (stringContain(line, "**"))
+      break;
+
+     if (stringContain(line, "*Nset"))
+      break;
+
+     if (stringContain(line, "*Elset"))
+      break;
+
+     std::vector<std::string> listNd = split(line, ",");
+     setNodes.insert(setNodes.begin(), listNd.begin(), listNd.end());
+    }
    }
 
   if (stringContain(line, "*Elset"))
@@ -168,7 +233,7 @@ std::vector<setAtributtes> readers::listOfSets(std::ifstream& file, std::string&
 
   if (stringContain(line, "**"))
    break;
- }
+ } while (std::getline(file, line));
  return setAtributtes;
 }
 
@@ -232,15 +297,60 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
 
   std::vector<std::string> setNodesBC;
 
+  if (stringContain(line, "internal"))
+   return setOfLoadAndBC;
+
   if (stringContain(line, "*Nset"))
   {
+   std::vector<std::string> aux = split(line, ",");
    setNameBC = stringBetween(line, "nset=", ", instance");
-   std::getline(file, line);
-   std::vector<std::string> listNd = split(line, ",");
-   std::vector<std::string> filtered;
-   std::copy_if(listNd.begin(), listNd.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
-   setNodesBC.insert(setNodesBC.begin(), filtered.begin(), filtered.end());
-   std::getline(file, line);
+
+   if (aux.size() > 3)
+   {
+    if (stringContain(aux[3], "generate"))
+    {
+     while (std::getline(file, line))
+     {
+      if (stringContain(line, "**"))
+       break;
+
+      if (stringContain(line, "*Nset"))
+       break;
+
+      if (stringContain(line, "*Elset"))
+       break;
+
+      std::vector<std::string> listNd = split(line, ",");
+      int number1 = utils::string2int(listNd[0]);
+      int number2 = utils::string2int(listNd[1]);
+      for (int i = number1; i <= number2; i++)
+      {
+       std::string str = utils::int2string(i);
+       setNodesBC.push_back(str);
+      }
+     }
+    }
+   }
+   else
+   {
+    while (std::getline(file, line))
+    {
+     if (stringContain(line, "**"))
+      break;
+
+     if (stringContain(line, "*Nset"))
+      break;
+
+     if (stringContain(line, "*Elset"))
+      break;
+
+     std::vector<std::string> listNd = split(line, ",");
+     std::vector<std::string> filtered; // used to filter empty spaces
+     std::copy_if(listNd.begin(), listNd.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
+     setNodesBC.insert(setNodesBC.begin(), filtered.begin(), filtered.end());
+    }
+   }
+   }
 
    if (stringContain(line, "*Nset"))
    {
@@ -261,9 +371,8 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
 
    if (!setElemBC.empty())
     setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
-   else
+   else if (setElemBC.empty() && !setNodesBC.empty())
     setOfLoadAndBC.emplace_back(setNodesBC, setNameBC);
-  }
 
   if (stringContain(line, "internal"))
    return setOfLoadAndBC;
@@ -296,7 +405,6 @@ std::vector<surfaceOfLoadAndBC> readers::listOfSurfaces(std::ifstream& file, std
    std::vector<std::string> listEl = split(line, ",");
    std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(surfElem), [](std::string s){return !s.empty(); });
    surfaces.emplace_back(surfName, surfFace, surfElem);
-  // std::getline(file, line);
   }
 
   if (stringContain(line, "*Surface"))
