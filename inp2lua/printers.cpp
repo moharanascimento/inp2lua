@@ -506,7 +506,7 @@ void printers::printBoundaryConditions(std::ofstream& out, std::vector<load> loa
      pressureTitle = true;
     }
 
-    out << "        {" << l.loadName << " , " << l.loadValue << "}," << std::endl;
+    out << "        {'" << l.loadName << "' , " << l.loadValue << "}," << std::endl;
    }
   }
 

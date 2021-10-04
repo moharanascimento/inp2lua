@@ -11,6 +11,8 @@ public:
 
  static std::vector<node> listOfNodes(std::ifstream& file, std::string& line);
  static bool stringContain(std::string s1, std::string s2);
+ static std::string stringRemove(std::string s1, std::string s2);
+ static std::vector<std::string> split(std::string s, std::string delimiter);
  static std::string stringBetween(std::string line, std::string first, std::string last);
  static std::vector<element> listOfElements(std::ifstream& file, std::string& line);
  static std::vector<setAtributtes> listOfSets(std::ifstream& file, std::string& line);

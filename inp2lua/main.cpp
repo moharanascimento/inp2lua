@@ -61,7 +61,7 @@ void readFile(std::string filePath)
     loads = readers::listOfLoads(file, line);
    }
   }  file.close();
-  std::ofstream fileOut("Modelo.lua");
+  std::ofstream fileOut("Modelo_model.lua");
   if (fileOut.is_open())
   {
    printers::printHeader(fileOut);

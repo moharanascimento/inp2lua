@@ -20,8 +20,24 @@ std::string readers::stringBetween(std::string line, std::string firstDelimiter,
  return stringBetween;
 }
 
+//function to filter and remove a string s2 from string s1
+std::string readers::stringRemove(std::string s1, std::string s2)
+{
+ if (!stringContain(s1, s2))
+  return s1;
+
+ std::vector<std::string> aux = split(s1, s2);
+ std::string result;
+ for (std::string s : aux)
+ {
+  result.append(s);
+ }
+ return result;
+}
+
+
 // function to separe string in subtrings
-std::vector<std::string> split(std::string s, std::string delimiter)
+std::vector<std::string> readers::split(std::string s, std::string delimiter)
 {
  size_t pos_start = 0, pos_end, delim_len = delimiter.length();
  std::string token;
@@ -173,6 +189,7 @@ std::vector<sectionAtributtes> readers::listOfSections(std::ifstream& file, std:
  std::vector<std::string> name1 = split(names[1], ",");
  setName = name1[0];
  materialName = names[2];
+ materialName = stringRemove(materialName, "-");
  std::getline(file, line);
  std::vector<std::string> thick = split(line, ",");
  thickness = thick[0];
@@ -193,6 +210,7 @@ std::vector<sectionAtributtes> readers::listOfSections(std::ifstream& file, std:
    std::vector<std::string> name1 = split(names[1], ",");
    setName = name1[0];
    materialName = names[2];
+   materialName = stringRemove(materialName, "-");
    std::getline(file, line);
    std::vector<std::string> thick = split(line, ",");
    thickness = thick[0];
@@ -307,6 +325,7 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
 
  std::vector<std::string> text = split(line, "name=");
  materialName1 = text[1];
+ materialName1 = stringRemove(materialName1, "-");
  std::getline(file, line);
 
  bool isDruckerPrager = false;
@@ -364,6 +383,7 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
  {
   std::vector<std::string> text = split(line, "name=");
   materialName = text[1];
+  materialName = stringRemove(materialName, "-");
  }
  //adicionado dia 29
 
@@ -397,6 +417,7 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
   {
    std::vector<std::string> text = split(line, "name=");
    materialName = text[1];
+   materialName = stringRemove(materialName, "-");
    std::getline(file, line);
   }
 
@@ -617,6 +638,7 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
   if (stringContain(line, "Type"))
   {
    loadName = stringBetween(line, "Name: ", " Type");
+   loadName = stringRemove(loadName, "-");
    std::vector<std::string> type = split(line, "Type: ");
    loadType = type[1];
    std::getline(file, line);
@@ -635,6 +657,7 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
     {
      loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
      loadName = stringBetween(line, "Name: ", " Type");
+     loadName = stringRemove(loadName, "-");
      std::vector<std::string> type = split(line, "Type: ");
      loadType = type[1];
      continue;
@@ -660,6 +683,7 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
     {
   //   loads.emplace_back(loadName, loadType, loadSurface, loadValue);
      loadName = stringBetween(line, "Name: ", " Type");
+     loadName = stringRemove(loadName, "-");
      std::vector<std::string> type = split(line, "Type: ");
      loadType = type[1];
      continue;
