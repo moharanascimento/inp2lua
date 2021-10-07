@@ -70,8 +70,8 @@ local Material1_Quadrilateral_elements = {
 }
 
 local mesh_elements = {
-    {cellType = 'quad4', cellGroup = 'Material1_Quadrilateral', cellList = Material1_Quadrilateral_elements, MatProp =1, SecProp =2}, -- Material1
     {cellType = 'quad4', cellGroup = 'Material2_Quadrilateral', cellList = Material2_Quadrilateral_elements, MatProp =2, SecProp =1}, -- Material2
+    {cellType = 'quad4', cellGroup = 'Material1_Quadrilateral', cellList = Material1_Quadrilateral_elements, MatProp =1, SecProp =2}, -- Material1
 }
 
 local bc_edges = {

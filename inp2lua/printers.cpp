@@ -1,5 +1,6 @@
 #include "printers.h"
 #include "utils.h"
+#include <algorithm>
 
 void printers::printHeader(std::ofstream& out)
 {
@@ -15,7 +16,44 @@ void printers::printHeader(std::ofstream& out)
  }
 }
 
-void printers::printMatProperties(std::ofstream& out, std::vector<material> materials)
+static void sortMaterials(std::vector<material>& materials, const std::vector<sectionAtributtes>& sections, const std::vector<setAtributtes>& sets)
+{
+ std::sort(materials.begin(), materials.end(), [sections,sets](material m1, material m2)
+ {
+  setAtributtes setM1 = sets[0];
+  setAtributtes setM2 = sets[0];
+
+  for (sectionAtributtes sec : sections)
+  {
+   if (sec.materialName == m1.materialName)
+   {
+    for (setAtributtes set : sets)
+    {
+     if (sec.setName == set.name)
+      setM1 = set;
+    }
+   }
+   if (sec.materialName == m2.materialName)
+   {
+    for (setAtributtes set : sets)
+    {
+     if (sec.setName == set.name)
+      setM2 = set;
+    }
+   }
+  }
+
+  int initElemM1 = utils::string2int(setM1.setElem[0]);
+  int initElemM2 = utils::string2int(setM2.setElem[0]);
+
+  return initElemM1 < initElemM2;
+
+ });
+
+}
+
+
+void printers::printMatProperties(std::ofstream& out, std::vector<material> materials, std::vector<setAtributtes> sets, std::vector<sectionAtributtes> sections)
 {
  if (out.is_open())
  {
@@ -55,6 +93,7 @@ void printers::printMatProperties(std::ofstream& out, std::vector<material> mate
   out << "    }," << std::endl;
   out << "    values = {" << std::endl;
  }
+
 
  for (material m : materials)
  {
@@ -197,6 +236,8 @@ void printers::printMeshElements(std::ofstream& out, std::vector<element> elemen
  if (out.is_open())
  {
   out << "local mesh_elements = {" << std::endl;
+
+  sortMaterials(materials, sections, sets);
 
   for (material m : materials)
   {

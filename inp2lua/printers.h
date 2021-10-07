@@ -10,7 +10,7 @@ class printers
 public:
  // funtion to 
  static void printHeader(std::ofstream& out);
- static void printMatProperties(std::ofstream& out, std::vector<material>);
+ static void printMatProperties(std::ofstream& out, std::vector<material>, std::vector<setAtributtes>, std::vector<sectionAtributtes>);
  static void printNodes(std::ofstream& out, std::vector<node>);
  static void printMeshDefinition(std::ofstream& out, int nodesSize, int elementsSize);
  static void printPropertySet(std::ofstream& out, std::vector<sectionAtributtes>);
