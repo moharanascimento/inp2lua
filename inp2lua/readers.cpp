@@ -157,7 +157,8 @@ std::vector<setAtributtes> readers::listOfSets(std::ifstream& file, std::string&
      std::vector<std::string> listNd = split(line, ",");
      int number1 = utils::string2int(listNd[0]);
      int number2 = utils::string2int(listNd[1]);
-     for (int i = number1; i <= number2; i++)
+     int number3 = utils::string2int(listNd[2]);
+     for (int i = number1; i <= number2; i+=number3)
      {
       std::string str = utils::int2string(i);
       setNodes.push_back(str);
@@ -206,7 +207,8 @@ std::vector<setAtributtes> readers::listOfSets(std::ifstream& file, std::string&
      std::vector<std::string> listEl = split(line, ",");
      int number1 = utils::string2int(listEl[0]);
      int number2 = utils::string2int(listEl[1]);
-     for (int i = number1; i <= number2; i++)
+     int number3 = utils::string2int(listEl[2]);
+     for (int i = number1; i <= number2; i+=number3)
      {
       std::string str = utils::int2string(i);
       setElem.push_back(str);
@@ -323,7 +325,8 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
       std::vector<std::string> listNd = split(line, ",");
       int number1 = utils::string2int(listNd[0]);
       int number2 = utils::string2int(listNd[1]);
-      for (int i = number1; i <= number2; i++)
+      int number3 = utils::string2int(listNd[2]);
+      for (int i = number1; i <= number2; i+=number3)
       {
        std::string str = utils::int2string(i);
        setNodesBC.push_back(str);
@@ -362,11 +365,27 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
 
    if (stringContain(line, "*Elset") && !stringContain(line, "internal"))
    {
-    std::getline(file, line);
-    std::vector<std::string> listEl = split(line, ",");
-    std::vector<std::string> filtered;
-    std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
-    setElemBC.insert(setElemBC.begin(), filtered.begin(), filtered.end());
+    if (stringContain(line, "generate"))
+    {
+     std::getline(file, line);
+     std::vector<std::string> listEl = split(line, ",");
+     int number1 = utils::string2int(listEl[0]);
+     int number2 = utils::string2int(listEl[1]);
+     int number3 = utils::string2int(listEl[2]);
+     for (int i = number1; i <= number2; i += number3)
+     {
+      std::string str = utils::int2string(i);
+      setElemBC.push_back(str);
+     }
+    }
+    else
+    {
+     std::getline(file, line);
+     std::vector<std::string> listEl = split(line, ",");
+     std::vector<std::string> filtered;
+     std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
+     setElemBC.insert(setElemBC.begin(), filtered.begin(), filtered.end());
+    }
    }
 
    if (!setElemBC.empty())
@@ -398,12 +417,31 @@ std::vector<surfaceOfLoadAndBC> readers::listOfSurfaces(std::ifstream& file, std
 
   if (stringContain(line, "*Elset"))
   {
-   surfName = stringBetween(line, "elset=_", "_");
-   std::vector<std::string> FaceEl = split(line, ", internal");
-   surfFace = FaceEl[0].back();
-   std::getline(file, line);
-   std::vector<std::string> listEl = split(line, ",");
-   std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(surfElem), [](std::string s){return !s.empty(); });
+   if (stringContain(line, "generate"))
+   {
+    surfName = stringBetween(line, "elset=_", "_");
+    std::vector<std::string> FaceEl = split(line, ", internal");
+    surfFace = FaceEl[0].back();
+    std::getline(file, line);
+    std::vector<std::string> listEl = split(line, ",");
+    int number1 = utils::string2int(listEl[0]);
+    int number2 = utils::string2int(listEl[1]);
+    int number3 = utils::string2int(listEl[2]);
+    for (int i = number1; i <= number2; i += number3)
+    {
+     std::string str = utils::int2string(i);
+     surfElem.push_back(str);
+    }
+   }
+   else
+   {
+    surfName = stringBetween(line, "elset=_", "_");
+    std::vector<std::string> FaceEl = split(line, ", internal");
+    surfFace = FaceEl[0].back();
+    std::getline(file, line);
+    std::vector<std::string> listEl = split(line, ",");
+    std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(surfElem), [](std::string s){return !s.empty(); });
+   }
    surfaces.emplace_back(surfName, surfFace, surfElem);
   }
 
