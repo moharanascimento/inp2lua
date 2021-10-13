@@ -11,6 +11,7 @@ public:
 
  static std::vector<node> listOfNodes(std::ifstream& file, std::string& line);
  static bool stringContain(std::string s1, std::string s2);
+ static std::string s_stepName;
  static std::string stringRemove(std::string s1, std::string s2);
  static std::vector<std::string> split(std::string s, std::string delimiter);
  static std::string stringBetween(std::string line, std::string first, std::string last);
@@ -22,6 +23,7 @@ public:
  static std::vector<material> listOfMaterials(std::ifstream& file, std::string& line);
  static std::vector<boundaryConditions> listOfBoundaryConditions(std::ifstream& file, std::string& line);
  static std::vector<load> listOfLoads(std::ifstream& file, std::string& line);
+ static std::vector<step> listOfSteps(std::ifstream& file, std::string& line);
 };
 
 

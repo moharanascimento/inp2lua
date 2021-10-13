@@ -3,6 +3,9 @@
 #include "utils.h"
 
 
+// parameter to put as default a initial step
+std::string readers::s_stepName = "Initial";
+
 // function to compare strings
 bool readers::stringContain(std::string s1, std::string s2)
 {
@@ -641,6 +644,69 @@ std::vector<material> readers::listOfMaterials(std::ifstream& file, std::string&
  return materials;
 }
 
+std::vector<step> readers::listOfSteps(std::ifstream& file, std::string& line)
+{
+ std::vector<step> steps;
+ std::string stepName;
+ std::string stepType;
+ std::string stepMin;
+ std::string stepMax;
+ std::string stepTotal;
+ std::string stepInit;
+ std::string stepMaxPore;
+ std::string stepCreepStrain;
+
+  std::vector<std::string> name = split(line, "STEP: ");
+  stepName = name[1];
+  s_stepName = stepName;
+
+  while (std::getline(file, line))
+  {
+   if (stringContain(line, "*Step"))
+   {
+    std::getline(file, line);
+    std::vector<std::string> type = split(line, "*");
+    stepType = type[1];
+
+    if (stepType == "Static")
+    {
+     std::getline(file, line);
+     std::vector<std::string> datas = split(line, ",");
+     stepInit = datas[0];
+     stepTotal = datas[1];
+     stepMin = datas[2];
+     stepMax = datas[3];
+
+     steps.emplace_back(stepName, stepType, stepMin, stepMax, stepTotal, stepInit);
+    }
+
+    else if (stringContain(line, "Soils"))
+    {
+     stepType = "Soils";
+     stepMaxPore = stringBetween(line, "utol:", ",");
+     if (stringContain(line, "creep"))
+      stepCreepStrain = "none";
+     else
+     {
+      std::vector<std::string> creep = split(line, "cetol");
+      stepCreepStrain = creep[1];
+     } 
+     std::getline(file, line);
+     std::vector<std::string> datas = split(line, ",");
+     stepInit = datas[0];
+     stepTotal = datas[1];
+     stepMin = datas[2];
+     stepMax = datas[3];
+
+     steps.emplace_back(stepName, stepType, stepMin, stepMax, stepTotal, stepInit);
+    }
+    break;
+   }
+  }
+
+ return steps;
+}
+
 // read and save list of boundary conditions
 std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream& file, std::string& line)
 {
@@ -653,14 +719,16 @@ std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream&
  std::string bcDirection2;
  std::string bcValue2;
  std::string bcAxisymmetric;
+ std::string bcStep = s_stepName;
  bool isAxisymmetric = false;
  //bool isPrescribedDisplacement = false;
  //bool isFixed = false;
 
  do
  {
+
   if (stringContain(line, "** LOADS"))
-   return boundaryConditions;
+   break;
 
   if (stringContain(line, "** Name"))
   {
@@ -684,16 +752,22 @@ std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream&
 
      if (stringContain(line, "** Name"))
      {
-      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2, bcStep);
       bcName = stringBetween(line, "** Name: ", " Type");
       std::vector<std::string> type = split(line, "Type: ");
       bcType = type[1];
       continue;
      }
 
+     if (stringContain(line, "---"))
+     {
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2, bcStep);
+      break;
+     }
+
      if (stringContain(line, "**"))
      {
-      boundaryConditions.emplace_back(bcName,bcType,bcSet,bcDirection1,bcValue1,bcDirection2,bcValue2);
+      boundaryConditions.emplace_back(bcName,bcType,bcSet,bcDirection1,bcValue1,bcDirection2,bcValue2, bcStep);
       continue;
      }
      std::vector<std::string> datas2 = split(line, ",");
@@ -701,13 +775,13 @@ std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream&
      {
       bcDirection2 = datas2[1];
       bcValue2 = "0";
-      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2, bcStep);
      }
      if (datas2.size() == 4)
      {
       bcDirection2 = datas2[1];
       bcValue2 = datas2[3];
-      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2, bcStep);
      }
     }
 
@@ -719,7 +793,7 @@ std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream&
 
      if (stringContain(line, "** Name"))
      {
-      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2, bcStep);
       bcName = stringBetween(line, "** Name: ", " Type");
       std::vector<std::string> type = split(line, "Type: ");
       bcType = type[1];
@@ -728,7 +802,7 @@ std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream&
 
      if (stringContain(line, "**"))
      {
-      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2, bcStep);
       continue;
      }
      std::vector<std::string> datas2 = split(line, ",");
@@ -736,13 +810,13 @@ std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream&
      {
       bcDirection2 = datas2[1];
       bcValue2 = "0";
-      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2, bcStep);
      }
      else if (datas2.size() == 4)
      {
       bcDirection2 = datas2[1];
       bcValue2 = datas2[3];
-      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2);
+      boundaryConditions.emplace_back(bcName, bcType, bcSet, bcDirection1, bcValue1, bcDirection2, bcValue2, bcStep);
      }
     }
 
@@ -755,9 +829,10 @@ std::vector<boundaryConditions> readers::listOfBoundaryConditions(std::ifstream&
     if (datas.size() == 2)
     {
      bcAxisymmetric = datas[1];
-     boundaryConditions.emplace_back(bcName, bcType, bcSet, bcAxisymmetric);
+     boundaryConditions.emplace_back(bcName, bcType, bcSet, bcAxisymmetric, bcStep);
     }
    }
+
  } while (std::getline(file, line));
  return boundaryConditions;
 }
@@ -775,6 +850,7 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
  std::string loadDirection2;
  std::string loadValue2;
  std::string loadSurface;
+ std::string loadStep = s_stepName;
 
  do
  {
@@ -801,7 +877,7 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
 
     if (stringContain(line, "Type"))
     {
-     loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
+     loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2, loadStep);
      loadName = stringBetween(line, "Name: ", " Type");
      loadName = stringRemove(loadName, "-");
      std::vector<std::string> type = split(line, "Type: ");
@@ -811,7 +887,7 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
 
     if (stringContain(line, "**"))
     {
-     loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
+     loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2, loadStep);
      continue;
     }
 
@@ -819,7 +895,7 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
     loadSet = text3[0];
     loadDirection2 = text3[1];
     loadValue2 = text3[2];
-    loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2);
+    loads.emplace_back(loadName, loadType, loadSet, loadDirection1, loadValue1, loadDirection2, loadValue2, loadStep);
    }
 
    else if (stringContain(line, "*Dsload"))
@@ -837,7 +913,7 @@ std::vector<load> readers::listOfLoads(std::ifstream& file, std::string& line)
     std::vector<std::string> text = split(line, ",");
     loadSurface = text[0];
     loadValue = text[2];
-    loads.emplace_back(loadName, loadType, loadSurface, loadValue);
+    loads.emplace_back(loadName, loadType, loadSurface, loadValue, loadStep);
    }
  } while (std::getline(file, line));
  return loads;

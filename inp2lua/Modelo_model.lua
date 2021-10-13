@@ -142,7 +142,7 @@ BoundaryCondition {
 }
 
 BoundaryCondition {
-    id   = 'pEdges',
+    id   = 'pEdges0',
     type = 'pressure load',
     mesh = 'mesh',
     properties  = {
@@ -157,7 +157,7 @@ BoundaryCondition {
 }
 
 BoundaryCondition {
-    id   = 'disp',
+    id   = 'disp0',
     type = 'node displacements',
     mesh = 'mesh',
     properties  = {

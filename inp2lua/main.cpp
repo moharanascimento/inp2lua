@@ -19,6 +19,7 @@ void readFile(std::string filePath)
   std::vector <setOfLoadAndBC> setLBC;
   std::vector <surfaceOfLoadAndBC> surface;
   std::vector <material> materials;
+  std::vector <step> steps;
   std::vector <boundaryConditions> boundaryConditions;
   std::vector <load> loads;
   while (std::getline(file, line))
@@ -52,15 +53,23 @@ void readFile(std::string filePath)
    {
     materials = readers::listOfMaterials(file, line);
    }
+   if (readers::stringContain(line, "** STEP"))
+   {
+    std::vector<step> auxSteps = readers::listOfSteps(file, line);
+    steps.insert(steps.end(), auxSteps.begin(), auxSteps.end());
+   }
    if (readers::stringContain(line, "** BOUNDARY"))
    {
-    boundaryConditions = readers::listOfBoundaryConditions(file, line);
+    auto auxBond = readers::listOfBoundaryConditions(file, line);
+    boundaryConditions.insert(boundaryConditions.end(), auxBond.begin(), auxBond.end());
    }
    if (readers::stringContain(line, "** LOADS"))
    {
-    loads = readers::listOfLoads(file, line);
+    auto auxLoads = readers::listOfLoads(file, line);
+    loads.insert(loads.end(), auxLoads.begin(), auxLoads.end());
    }
-  }  file.close();
+  } 
+  file.close();
   std::ofstream fileOut("Modelo_model.lua");
   if (fileOut.is_open())
   {

@@ -93,7 +93,30 @@ material::material(std::string materialName, std::string youngModulus, std::stri
  this->type = materialType::DRUCKERPRAGER;
 }
 
-boundaryConditions::boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcDirection1, std::string bcValue1, std::string bcDirection2, std::string bcValue2)
+step::step(std::string stepName, std::string stepType, std::string stepMin, std::string stepMax, std::string stepTotal, std::string stepInit)
+{
+ this->stepName = stepName;
+ this->stepType = stepType;
+ this->stepMin = stepMin;
+ this->stepMax = stepMax;
+ this->stepTotal = stepTotal;
+ this->stepInit = stepInit;
+}
+
+step::step(std::string stepName, std::string stepType, std::string stepMin, std::string stepMax, std::string stepTotal, std::string stepInit, std::string stepMaxPore, std::string stepCreepStrain)
+{
+ this->stepName = stepName;
+ this->stepType = stepType;
+ this->stepMin = stepMin;
+ this->stepMax = stepMax;
+ this->stepTotal = stepTotal;
+ this->stepInit = stepInit;
+ this->stepMaxPore = stepMaxPore;
+ this->stepCreepStrain = stepCreepStrain;
+}
+
+
+boundaryConditions::boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcDirection1, std::string bcValue1, std::string bcDirection2, std::string bcValue2, std::string bcStep)
 {
  this->bcName = bcName;
  this->bcType = bcType;
@@ -102,17 +125,19 @@ boundaryConditions::boundaryConditions(std::string bcName, std::string bcType, s
  this->bcValue1 = bcValue1;
  this->bcDirection2 = bcDirection2;
  this->bcValue2 = bcValue2;
+ this->bcStep = bcStep;
 }
 
-boundaryConditions::boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcAxisymmetric)
+boundaryConditions::boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcAxisymmetric, std::string bcStep)
 {
  this->bcName = bcName;
  this->bcType = bcType;
  this->bcSet = bcSet;
  this->bcAxisymmetric = bcAxisymmetric;
+ this->bcStep = bcStep;
 }
 
-load::load(std::string loadName, std::string loadType, std::string loadSet, std::string loadDirection1, std::string loadValue1, std::string loadDirection2, std::string loadValue2)
+load::load(std::string loadName, std::string loadType, std::string loadSet, std::string loadDirection1, std::string loadValue1, std::string loadDirection2, std::string loadValue2, std::string loadStep)
 {
  this->loadName = loadName;
  this->loadType = loadType;
@@ -121,14 +146,16 @@ load::load(std::string loadName, std::string loadType, std::string loadSet, std:
  this->loadValue1 = loadValue1;
  this->loadDirection2 = loadDirection2;
  this->loadValue2 = loadValue2;
+ this->loadStep = loadStep;
 }
 
-load::load(std::string loadName, std::string loadType, std::string loadSurface, std::string loadValue)
+load::load(std::string loadName, std::string loadType, std::string loadSurface, std::string loadValue, std::string loadStep)
 {
  this->loadName = loadName;
  this->loadType = loadType;
  this->loadSurface = loadSurface;
  this->loadValue = loadValue;
+ this->loadStep = loadStep;
 }
 
 struct matProperty

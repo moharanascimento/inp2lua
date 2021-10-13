@@ -86,11 +86,27 @@ public:
  int id;
 };
 
+class step
+{
+public:
+  step(std::string stepName, std::string stepType, std::string stepMin, std::string stepMax, std::string stepTotal, std::string stepInit);
+  step(std::string stepName, std::string stepType, std::string stepMin, std::string stepMax, std::string stepTotal, std::string stepInit, std::string stepMaxPore, std::string stepCreepStrain);
+  std::string stepName;
+  std::string stepType;
+  std::string stepMin;
+  std::string stepMax;
+  std::string stepTotal;
+  std::string stepInit;
+  std::string stepMaxPore;
+  std::string stepCreepStrain;
+};
+
+
 class boundaryConditions
 {
 public:
- boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcDirection1, std::string bcValue1, std::string bcDirection2, std::string bcValue2);
- boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcAxisymmetric);
+ boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcDirection1, std::string bcValue1, std::string bcDirection2, std::string bcValue2, std::string bcStep);
+ boundaryConditions(std::string bcName, std::string bcType, std::string bcSet, std::string bcAxisymmetric, std::string bcStep);
 
  std::string bcName;
  std::string bcType;
@@ -100,13 +116,14 @@ public:
  std::string bcDirection2;
  std::string bcValue2;
  std::string bcAxisymmetric;
+ std::string bcStep;
 };
 
 class load
 {
 public:
- load(std::string loadName, std::string loadType, std::string loadSet, std::string loadDirection1, std::string loadValue1, std::string loadDirection2, std::string loadValue2);
- load(std::string loadName, std::string loadType, std::string loadSurface, std::string loadValue); 
+ load(std::string loadName, std::string loadType, std::string loadSet, std::string loadDirection1, std::string loadValue1, std::string loadDirection2, std::string loadValue2, std::string loadStep);
+ load(std::string loadName, std::string loadType, std::string loadSurface, std::string loadValue, std::string loadStep);
  
  std::string loadName;
  std::string loadType;
@@ -117,6 +134,7 @@ public:
  std::string loadValue1;
  std::string loadDirection2;
  std::string loadValue2;
+ std::string loadStep;
 };
 
 #endif

@@ -481,6 +481,8 @@ void printers::printBoundaryConditions(std::ofstream& out, std::vector<load> loa
   bool cloadTitle = false;
   bool pressureTitle = false;
   bool dispTitle = false;
+  int pressureNumber = 0;
+  int dispNumber = 0;
 
   for (load l : loads)
   {
@@ -537,7 +539,7 @@ void printers::printBoundaryConditions(std::ofstream& out, std::vector<load> loa
     if (!pressureTitle)
     {
      out << "BoundaryCondition {" << std::endl;
-     out << "    id   = 'pEdges'," << std::endl;
+     out << "    id   = 'pEdges"<< pressureNumber << "'," << std::endl;
      out << "    type = 'pressure load'," << std::endl;
      out << "    mesh = 'mesh'," << std::endl;
      out << "    properties  = {" << std::endl;
@@ -562,7 +564,7 @@ void printers::printBoundaryConditions(std::ofstream& out, std::vector<load> loa
    if (!dispTitle)
    {
     out << "BoundaryCondition {" << std::endl;
-    out << "    id   = 'disp'," << std::endl;
+    out << "    id   = 'disp"<< dispNumber <<"'," << std::endl;
     out << "    type = 'node displacements'," << std::endl;
     out << "    mesh = 'mesh'," << std::endl;
     out << "    properties  = {" << std::endl;
