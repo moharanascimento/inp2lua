@@ -135,6 +135,10 @@ public:
  std::string loadDirection2;
  std::string loadValue2;
  std::string loadStep;
+
+ bool operator==(const load& lhs) const {
+  return lhs.loadName == loadName;
+ }
 };
 
 #endif

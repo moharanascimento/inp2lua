@@ -1,8 +1,9 @@
-#include "printers.h"
+#include "printers_model.h"
 #include "utils.h"
 #include <algorithm>
+#include <unordered_set>
 
-void printers::printHeader(std::ofstream& out)
+void printersModel::printHeader(std::ofstream& out)
 {
  if (out.is_open())
  {
@@ -53,7 +54,7 @@ static void sortMaterials(std::vector<material>& materials, const std::vector<se
 }
 
 
-void printers::printMatProperties(std::ofstream& out, std::vector<material> materials, std::vector<setAtributtes> sets, std::vector<sectionAtributtes> sections)
+void printersModel::printMatProperties(std::ofstream& out, std::vector<material> materials, std::vector<setAtributtes> sets, std::vector<sectionAtributtes> sections)
 {
  if (out.is_open())
  {
@@ -122,7 +123,7 @@ void printers::printMatProperties(std::ofstream& out, std::vector<material> mate
  out << "}" << std::endl << std::endl;
 }
 
-void printers::printPropertySet(std::ofstream& out, std::vector<sectionAtributtes> sections)
+void printersModel::printPropertySet(std::ofstream& out, std::vector<sectionAtributtes> sections)
 {
  if (out.is_open())
  {
@@ -145,7 +146,7 @@ void printers::printPropertySet(std::ofstream& out, std::vector<sectionAtributte
  }
 }
 
-void printers::printMeshDefinition(std::ofstream& out, int nodesSize, int elementsSize)
+void printersModel::printMeshDefinition(std::ofstream& out, int nodesSize, int elementsSize)
 {
  if (out.is_open())
  {
@@ -157,7 +158,7 @@ void printers::printMeshDefinition(std::ofstream& out, int nodesSize, int elemen
  }
 }
 
-void printers::printNodes(std::ofstream& out, std::vector<node> nodes)
+void printersModel::printNodes(std::ofstream& out, std::vector<node> nodes)
 {
  if (out.is_open())
  {
@@ -170,7 +171,7 @@ void printers::printNodes(std::ofstream& out, std::vector<node> nodes)
  }
 }
 
-void printers::printElementGroups(std::ofstream& out, std::vector<element> elements,
+void printersModel::printElementGroups(std::ofstream& out, std::vector<element> elements,
  std::vector<sectionAtributtes> sections, std::vector<setAtributtes> sets)
 {
  if (out.is_open())
@@ -231,7 +232,7 @@ void printers::printElementGroups(std::ofstream& out, std::vector<element> eleme
  }
 }
 
-void printers::printMeshElements(std::ofstream& out, std::vector<element> elements, std::vector<sectionAtributtes> sections, std::vector<material> materials, std::vector<setAtributtes> sets)
+void printersModel::printMeshElements(std::ofstream& out, std::vector<element> elements, std::vector<sectionAtributtes> sections, std::vector<material> materials, std::vector<setAtributtes> sets)
 {
  if (out.is_open())
  {
@@ -315,7 +316,7 @@ void printers::printMeshElements(std::ofstream& out, std::vector<element> elemen
  }
 }
 
-void printers::printBCEdges(std::ofstream& out, std::vector<load> loads, std::vector<surfaceOfLoadAndBC> surfaces)
+void printersModel::printBCEdges(std::ofstream& out, std::vector<load> loads, std::vector<surfaceOfLoadAndBC> surfaces)
 {
  if (out.is_open())
  {
@@ -331,17 +332,21 @@ void printers::printBCEdges(std::ofstream& out, std::vector<load> loads, std::ve
   if (hasPressure)
   out << "local bc_edges = {" << std::endl;
 
+  std::unordered_set<load,utils::loadHash, utils::equalHash> loadWithoutDuplicate;
+  for (load l : loads) loadWithoutDuplicate.insert(l);
+
+
   for (surfaceOfLoadAndBC s : surfaces)
   {
    std::string surfaceName = s.surfName;
    std::string surfaceFace = s.surfFace;
 
-   for (load l : loads)
+   for (load lw : loadWithoutDuplicate)
    {
-    if (l.loadType == "Pressure" && l.loadSurface == surfaceName)
+    if (lw.loadType == "Pressure" && lw.loadSurface == surfaceName)
     {
 
-     out << "    {id = '" << l.loadName << "'," << std::endl;
+     out << "    {id = '" << lw.loadName << "'," << std::endl;
      out << "     cellList = {" << std::endl;
 
      for (std::string e : s.surfElem)
@@ -359,7 +364,7 @@ void printers::printBCEdges(std::ofstream& out, std::vector<load> loads, std::ve
  }
 }
 
-void printers::printMesh(std::ofstream& out, std::vector<element> elements, std::vector<surfaceOfLoadAndBC> surfaces, std::vector<load> loads)
+void printersModel::printMesh(std::ofstream& out, std::vector<element> elements, std::vector<surfaceOfLoadAndBC> surfaces, std::vector<load> loads)
 {
  if (out.is_open())
  {
@@ -470,7 +475,7 @@ void printers::printMesh(std::ofstream& out, std::vector<element> elements, std:
  }
 }
 
-void printers::printBoundaryConditions(std::ofstream& out, std::vector<load> loads, std::vector<setOfLoadAndBC> sets, std::vector<boundaryConditions> bc)
+void printersModel::printBoundaryConditions(std::ofstream& out, std::vector<load> loads, std::vector<setOfLoadAndBC> sets, std::vector<boundaryConditions> bc)
 {
  if (out.is_open())
  {
@@ -653,7 +658,7 @@ void printers::printBoundaryConditions(std::ofstream& out, std::vector<load> loa
  }
 }
 
-void printers::printSignature(std::ofstream& out)
+void printersModel::printSignature(std::ofstream& out)
 {
  if (out.is_open())
   out << "-- Generated by Abaqus2GeMA v0.1.0";

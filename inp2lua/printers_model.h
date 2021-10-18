@@ -5,7 +5,7 @@
 #include <vector>
 #include "objects.h"
 
-class printers
+class printersModel
 {
 public:
  // funtion to 

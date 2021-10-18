@@ -3,7 +3,7 @@
 #include <fstream>
 #include <vector>
 #include "objects.h"
-#include "printers.h"
+#include "printers_model.h"
 #include "readers.h"
 
 void readFile(std::string filePath)
@@ -73,17 +73,17 @@ void readFile(std::string filePath)
   std::ofstream fileOut("Modelo_model.lua");
   if (fileOut.is_open())
   {
-   printers::printHeader(fileOut);
-   printers::printMatProperties(fileOut, materials, sets, sections);
-   printers::printPropertySet(fileOut, sections);
-   printers::printMeshDefinition(fileOut, nodes.size(), elements.size());
-   printers::printNodes(fileOut, nodes);
-   printers::printElementGroups(fileOut, elements, sections, sets);
-   printers::printMeshElements(fileOut, elements, sections, materials, sets);
-   printers::printBCEdges(fileOut, loads, surface);
-   printers::printMesh(fileOut, elements, surface, loads);
-   printers::printBoundaryConditions(fileOut, loads,setLBC, boundaryConditions);
-   printers::printSignature(fileOut);
+   printersModel::printHeader(fileOut);
+   printersModel::printMatProperties(fileOut, materials, sets, sections);
+   printersModel::printPropertySet(fileOut, sections);
+   printersModel::printMeshDefinition(fileOut, nodes.size(), elements.size());
+   printersModel::printNodes(fileOut, nodes);
+   printersModel::printElementGroups(fileOut, elements, sections, sets);
+   printersModel::printMeshElements(fileOut, elements, sections, materials, sets);
+   printersModel::printBCEdges(fileOut, loads, surface);
+   printersModel::printMesh(fileOut, elements, surface, loads);
+   printersModel::printBoundaryConditions(fileOut, loads,setLBC, boundaryConditions);
+   printersModel::printSignature(fileOut);
    fileOut.close();
   }
  }
@@ -91,5 +91,5 @@ void readFile(std::string filePath)
 
 int main()
 {
- readFile("Job-3.inp");
+ readFile("Modelo_1_Strain_Job.inp");
 }

@@ -65,14 +65,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="objects.h" />
-    <ClInclude Include="printers.h" />
+    <ClInclude Include="printers_model.h" />
     <ClInclude Include="readers.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objects.cpp" />
-    <ClCompile Include="printers.cpp" />
+    <ClCompile Include="printers_model.cpp" />
     <ClCompile Include="readers.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
