@@ -475,7 +475,7 @@ void printersModel::printMesh(std::ofstream& out, std::vector<element> elements,
  }
 }
 
-void printersModel::printBoundaryConditions(std::ofstream& out, std::vector<load> loads, std::vector<setOfLoadAndBC> sets, std::vector<boundaryConditions> bc)
+void printersModel::printBoundaryConditions(std::ofstream& out, std::vector<load> loads, std::vector<setOfLoadAndBC> sets, std::vector<boundaryConditions> bc, std::vector<step> steps)
 {
  if (out.is_open())
  {
@@ -486,165 +486,288 @@ void printersModel::printBoundaryConditions(std::ofstream& out, std::vector<load
   bool cloadTitle = false;
   bool pressureTitle = false;
   bool dispTitle = false;
-  int pressureNumber = 0;
-  int dispNumber = 0;
+  std::string dispStep = "0";
 
-  for (load l : loads)
+  
+  for (step s : steps)
   {
-   if (l.loadType == "Concentrated force")
+   std::string pressureStep;
+   std::string cloadStep;
+
+   cloadTitle = false;
+   pressureTitle = false;
+//   std::unordered_set<load, utils::loadHash, utils::equalHash> loadWithoutDuplicate;
+//   for (load l : loads) loadWithoutDuplicate.insert(l);
+
+   for (load l : loads)
    {
-    if (!cloadTitle)
+
+    if (l.loadType == "Concentrated force" && s.stepName == l.loadStep)
     {
-     out << "BoundaryCondition {" << std::endl;
-     out << "    id   = 'cload'," << std::endl;
-     out << "    type = 'node concentrated forces'," << std::endl;
-     out << "    mesh = 'mesh'," << std::endl;
-     out << "    properties  = {" << std::endl;
-     out << "        {id = 'f',  description = 'External force applied on the node', unit = 'kN', dim = 2}," << std::endl;
-     out << "    }," << std::endl;
-     out << "    nodeValues = {" << std::endl;
-     cloadTitle = true;
+     if (!cloadTitle)
+     {
+      cloadStep = s.stepName;
+      out << "BoundaryCondition {" << std::endl;
+      out << "    id   = 'cload" << cloadStep << "'," << std::endl;
+      out << "    type = 'node concentrated forces'," << std::endl;
+      out << "    mesh = 'mesh'," << std::endl;
+      out << "    properties  = {" << std::endl;
+      out << "        {id = 'f',  description = 'External force applied on the node', unit = 'kN', dim = 2}," << std::endl;
+      out << "    }," << std::endl;
+      out << "    nodeValues = {" << std::endl;
+      cloadTitle = true;
+     }
+
+     for (setOfLoadAndBC set : sets)
+     {
+      if (set.setNameBC == l.loadSet)
+      {
+       for (std::string node : set.setNodesBC)
+       {
+        if (l.loadDirection2.empty() && l.loadDirection1 == " 1")
+        {
+         out << "        {" << node << ",";
+         out << " { " << l.loadValue1 << ", 0} }, -- " << l.loadName << std::endl;
+        }
+        else if (l.loadDirection2.empty() && l.loadDirection1 == " 2")
+        {
+         out << "        {" << node << ",";
+         out << " { 0," << l.loadValue1 << "} }, -- " << l.loadName << std::endl;
+        }
+        else if (l.loadDirection1 == " 1" && l.loadDirection2 == " 2")
+        {
+         out << "        {" << node << ",";
+         out << " { " << l.loadValue1 << ", " << l.loadValue2 << "} }, -- " << l.loadName << std::endl;
+        }
+        else if (l.loadDirection1 == " 2" && l.loadDirection2 == " 1")
+        {
+         out << "        {" << node << ",";
+         out << " { " << l.loadValue2 << ", " << l.loadValue1 << "} }, -- " << l.loadName << std::endl;
+        }
+       }
+      }
+     }
+     out << "    }" << std::endl;
+     out << "}" << std::endl << std::endl;
     }
 
-    for (setOfLoadAndBC set : sets)
+    if (l.loadType == "Pressure" && s.stepName == l.loadStep)
     {
-     if (set.setNameBC == l.loadSet)
+     if (!pressureTitle)
      {
-      for (std::string node : set.setNodesBC)
+      pressureStep = s.stepName;
+      out << "BoundaryCondition {" << std::endl;
+      out << "    id   = 'pEdges" << pressureStep << "'," << std::endl;
+      out << "    type = 'pressure load'," << std::endl;
+      out << "    mesh = 'mesh'," << std::endl;
+      out << "    properties  = {" << std::endl;
+      out << "        {id = 'pl',  description = 'Pressure loading on edges', unit = 'kPa'}," << std::endl;
+      out << "    }," << std::endl;
+      out << "    edgeValues = {" << std::endl;
+      pressureTitle = true;
+     }
+
+     out << "        {'" << l.loadName << "' , " << l.loadValue << "}," << std::endl;
+    }
+   }
+
+   if (pressureTitle)
+   {
+    out << "    }" << std::endl;
+    out << "}" << std::endl << std::endl;
+   }
+  }
+
+  for (boundaryConditions boundCond : bc)
+  {
+   if (boundCond.bcStep == "Initial")
+   {
+    dispStep = boundCond.bcStep;
+
+    if (!dispTitle)
+    {
+     out << "BoundaryCondition {" << std::endl;
+     out << "    id   = 'disp" << dispStep << "'," << std::endl;
+     out << "    type = 'node displacements'," << std::endl;
+     out << "    mesh = 'mesh'," << std::endl;
+     out << "    properties  = {" << std::endl;
+     out << "        {id = 'ux',  description = 'Fixed node displacement in the X direction', unit = 'm', defVal = -9999}," << std::endl;
+     out << "        {id = 'uy',  description = 'Fixed node displacement in the Y direction', unit = 'm', defVal = -9999}," << std::endl;
+     out << "    }," << std::endl;
+     out << "    nodeValues = {" << std::endl;
+     dispTitle = true;
+    }
+
+    if (boundCond.bcType == "Displacement/Rotation")
+    {
+     for (setOfLoadAndBC set : sets)
+     {
+      if (set.setNameBC == boundCond.bcSet)
       {
-       if (l.loadDirection2.empty() && l.loadDirection1 == " 1")
+       for (std::string node : set.setNodesBC)
        {
-        out << "        {" << node << ",";
-        out << " { " << l.loadValue1 << ", 0} }, -- " << l.loadName << std::endl;
-       }
-       else if (l.loadDirection2.empty() && l.loadDirection1 == " 2")
-       {
-        out << "        {" << node << ",";
-        out << " { 0," << l.loadValue1 << "} }, -- " << l.loadName << std::endl;
-       }
-       else if (l.loadDirection1 == " 1" && l.loadDirection2 == " 2")
-       {
-        out << "        {" << node << ",";
-        out << " { " << l.loadValue1 << ", " << l.loadValue2 << "} }, -- " << l.loadName << std::endl;
-       }
-       else if (l.loadDirection1 == " 2" && l.loadDirection2 == " 1")
-       {
-        out << "        {" << node << ",";
-        out << " { " << l.loadValue2 << ", " << l.loadValue1 << "} }, -- " << l.loadName << std::endl;
+        if (boundCond.bcDirection2.empty() && boundCond.bcDirection1 == " 1")
+        {
+         out << "        { " << node << ", ";
+         out << boundCond.bcValue1 << ", nil }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcDirection2.empty() && boundCond.bcDirection1 == " 2")
+        {
+         out << "        { " << node << ",";
+         out << " nil, " << boundCond.bcValue1 << " }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcDirection1 == " 1" && boundCond.bcDirection2 == " 2")
+        {
+         out << "        { " << node << ", ";
+         out << boundCond.bcValue1 << ", " << boundCond.bcValue2 << " }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcDirection1 == " 2" && boundCond.bcDirection2 == " 1")
+        {
+         out << "        { " << node << ", ";
+         out << boundCond.bcValue2 << ", " << boundCond.bcValue1 << " }, -- " << boundCond.bcName << std::endl;
+        }
        }
       }
      }
     }
-    out << "    }" << std::endl;
-    out << "}" << std::endl << std::endl;
-   }
 
-   if (l.loadType == "Pressure")
-   {
-    if (!pressureTitle)
+    if (boundCond.bcType == "Symmetry/Antisymmetry/Encastre")
     {
-     out << "BoundaryCondition {" << std::endl;
-     out << "    id   = 'pEdges"<< pressureNumber << "'," << std::endl;
-     out << "    type = 'pressure load'," << std::endl;
-     out << "    mesh = 'mesh'," << std::endl;
-     out << "    properties  = {" << std::endl;
-     out << "        {id = 'pl',  description = 'Pressure loading on edges', unit = 'kPa'}," << std::endl;
-     out << "    }," << std::endl;
-     out << "    edgeValues = {" << std::endl;
-     pressureTitle = true;
+     for (setOfLoadAndBC set : sets)
+     {
+      if (set.setNameBC == boundCond.bcSet)
+      {
+       for (std::string node : set.setNodesBC)
+       {
+        if (boundCond.bcAxisymmetric == " XSYMM")
+        {
+         out << "        { " << node << ", ";
+         out << "0, nil }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcAxisymmetric == " YSYMM")
+        {
+         out << "        { " << node << ",";
+         out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcAxisymmetric == " ZASYMM")
+        {
+         out << "        { " << node << ", ";
+         out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcAxisymmetric == " PINNED")
+        {
+         out << "        { " << node << ", ";
+         out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcAxisymmetric == " ENCASTRE")
+        {
+         out << "        { " << node << ", ";
+         out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+        }
+       }
+      }
+     }
     }
-
-    out << "        {'" << l.loadName << "' , " << l.loadValue << "}," << std::endl;
    }
   }
 
-  if (pressureTitle)
+  if (dispTitle)
   {
    out << "    }" << std::endl;
    out << "}" << std::endl << std::endl;
   }
 
+  bool dispTitle2 = false;
+  bool hasAnotherStep = false;
+
   for (boundaryConditions boundCond : bc)
   {
-   if (!dispTitle)
+   if (boundCond.bcStep != "Initial")
    {
-    out << "BoundaryCondition {" << std::endl;
-    out << "    id   = 'disp"<< dispNumber <<"'," << std::endl;
-    out << "    type = 'node displacements'," << std::endl;
-    out << "    mesh = 'mesh'," << std::endl;
-    out << "    properties  = {" << std::endl;
-    out << "        {id = 'ux',  description = 'Fixed node displacement in the X direction', unit = 'm', defVal = -9999}," << std::endl;
-    out << "        {id = 'uy',  description = 'Fixed node displacement in the Y direction', unit = 'm', defVal = -9999}," << std::endl;
-    out << "    }," << std::endl;
-    out << "    nodeValues = {" << std::endl;
-    dispTitle = true;
-   }
 
-   if (boundCond.bcType == "Displacement/Rotation")
-   {
-    for (setOfLoadAndBC set : sets)
+    dispStep = boundCond.bcStep;
+
+    if (!dispTitle2)
     {
-     if (set.setNameBC == boundCond.bcSet)
+     out << "BoundaryCondition {" << std::endl;
+     out << "    id   = 'disp" << dispStep << "'," << std::endl;
+     out << "    type = 'node displacements'," << std::endl;
+     out << "    mesh = 'mesh'," << std::endl;
+     out << "    properties  = {" << std::endl;
+     out << "        {id = 'ux',  description = 'Fixed node displacement in the X direction', unit = 'm', defVal = -9999}," << std::endl;
+     out << "        {id = 'uy',  description = 'Fixed node displacement in the Y direction', unit = 'm', defVal = -9999}," << std::endl;
+     out << "    }," << std::endl;
+     out << "    nodeValues = {" << std::endl;
+     dispTitle2 = true;
+     hasAnotherStep = true;
+    }
+
+    if (boundCond.bcType == "Displacement/Rotation")
+    {
+     for (setOfLoadAndBC set : sets)
      {
-      for (std::string node : set.setNodesBC)
+      if (set.setNameBC == boundCond.bcSet)
       {
-       if (boundCond.bcDirection2.empty() && boundCond.bcDirection1 == " 1")
+       for (std::string node : set.setNodesBC)
        {
-        out << "        { " << node << ", ";
-        out << boundCond.bcValue1 << ", nil }, -- " << boundCond.bcName << std::endl;
-       }
-       else if (boundCond.bcDirection2.empty() && boundCond.bcDirection1 == " 2")
-       {
-        out << "        { " << node << ",";
-        out << " nil, " << boundCond.bcValue1 << " }, -- " << boundCond.bcName << std::endl;
-       }
-       else if (boundCond.bcDirection1 == " 1" && boundCond.bcDirection2 == " 2")
-       {
-        out << "        { " << node << ", ";
-        out << boundCond.bcValue1 << ", " << boundCond.bcValue2 << " }, -- " << boundCond.bcName << std::endl;
-       }
-       else if (boundCond.bcDirection1 == " 2" && boundCond.bcDirection2 == " 1")
-       {
-        out << "        { " << node << ", ";
-        out << boundCond.bcValue2 << ", " << boundCond.bcValue1 << " }, -- " << boundCond.bcName << std::endl;
+        if (boundCond.bcDirection2.empty() && boundCond.bcDirection1 == " 1")
+        {
+         out << "        { " << node << ", ";
+         out << boundCond.bcValue1 << ", nil }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcDirection2.empty() && boundCond.bcDirection1 == " 2")
+        {
+         out << "        { " << node << ",";
+         out << " nil, " << boundCond.bcValue1 << " }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcDirection1 == " 1" && boundCond.bcDirection2 == " 2")
+        {
+         out << "        { " << node << ", ";
+         out << boundCond.bcValue1 << ", " << boundCond.bcValue2 << " }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcDirection1 == " 2" && boundCond.bcDirection2 == " 1")
+        {
+         out << "        { " << node << ", ";
+         out << boundCond.bcValue2 << ", " << boundCond.bcValue1 << " }, -- " << boundCond.bcName << std::endl;
+        }
        }
       }
      }
     }
-   }
 
-   if (boundCond.bcType == "Symmetry/Antisymmetry/Encastre")
-   {
-    for (setOfLoadAndBC set : sets)
+    if (boundCond.bcType == "Symmetry/Antisymmetry/Encastre")
     {
-     if (set.setNameBC == boundCond.bcSet)
+     for (setOfLoadAndBC set : sets)
      {
-      for (std::string node : set.setNodesBC)
+      if (set.setNameBC == boundCond.bcSet)
       {
-       if (boundCond.bcAxisymmetric == " XSYMM")
+       for (std::string node : set.setNodesBC)
        {
-        out << "        { " << node << ", ";
-        out << "0, nil }, -- " << boundCond.bcName << std::endl;
-       }
-       else if (boundCond.bcAxisymmetric == " YSYMM")
-       {
-        out << "        { " << node << ",";
-        out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
-       }
-       else if (boundCond.bcAxisymmetric == " ZASYMM")
-       {
-        out << "        { " << node << ", ";
-        out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
-       }
-       else if (boundCond.bcAxisymmetric == " PINNED")
-       {
-        out << "        { " << node << ", ";
-        out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
-       }
-       else if (boundCond.bcAxisymmetric == " ENCASTRE")
-       {
-        out << "        { " << node << ", ";
-        out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+        if (boundCond.bcAxisymmetric == " XSYMM")
+        {
+         out << "        { " << node << ", ";
+         out << "0, nil }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcAxisymmetric == " YSYMM")
+        {
+         out << "        { " << node << ",";
+         out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcAxisymmetric == " ZASYMM")
+        {
+         out << "        { " << node << ", ";
+         out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcAxisymmetric == " PINNED")
+        {
+         out << "        { " << node << ", ";
+         out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+        }
+        else if (boundCond.bcAxisymmetric == " ENCASTRE")
+        {
+         out << "        { " << node << ", ";
+         out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+        }
        }
       }
      }
@@ -652,9 +775,91 @@ void printersModel::printBoundaryConditions(std::ofstream& out, std::vector<load
    }
   }
 
-  out << "    }" << std::endl;
-  out << "}" << std::endl << std::endl;
+  if (hasAnotherStep)
+  {
+   for (boundaryConditions boundCond : bc)
+   {
+    if (boundCond.bcStep == "Initial")
+    {
+     if (boundCond.bcType == "Displacement/Rotation")
+     {
+      for (setOfLoadAndBC set : sets)
+      {
+       if (set.setNameBC == boundCond.bcSet)
+       {
+        for (std::string node : set.setNodesBC)
+        {
+         if (boundCond.bcDirection2.empty() && boundCond.bcDirection1 == " 1")
+         {
+          out << "        { " << node << ", ";
+          out << boundCond.bcValue1 << ", nil }, -- " << boundCond.bcName << std::endl;
+         }
+         else if (boundCond.bcDirection2.empty() && boundCond.bcDirection1 == " 2")
+         {
+          out << "        { " << node << ",";
+          out << " nil, " << boundCond.bcValue1 << " }, -- " << boundCond.bcName << std::endl;
+         }
+         else if (boundCond.bcDirection1 == " 1" && boundCond.bcDirection2 == " 2")
+         {
+          out << "        { " << node << ", ";
+          out << boundCond.bcValue1 << ", " << boundCond.bcValue2 << " }, -- " << boundCond.bcName << std::endl;
+         }
+         else if (boundCond.bcDirection1 == " 2" && boundCond.bcDirection2 == " 1")
+         {
+          out << "        { " << node << ", ";
+          out << boundCond.bcValue2 << ", " << boundCond.bcValue1 << " }, -- " << boundCond.bcName << std::endl;
+         }
+        }
+       }
+      }
+     }
 
+     if (boundCond.bcType == "Symmetry/Antisymmetry/Encastre")
+     {
+      for (setOfLoadAndBC set : sets)
+      {
+       if (set.setNameBC == boundCond.bcSet)
+       {
+        for (std::string node : set.setNodesBC)
+        {
+         if (boundCond.bcAxisymmetric == " XSYMM")
+         {
+          out << "        { " << node << ", ";
+          out << "0, nil }, -- " << boundCond.bcName << std::endl;
+         }
+         else if (boundCond.bcAxisymmetric == " YSYMM")
+         {
+          out << "        { " << node << ",";
+          out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+         }
+         else if (boundCond.bcAxisymmetric == " ZASYMM")
+         {
+          out << "        { " << node << ", ";
+          out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+         }
+         else if (boundCond.bcAxisymmetric == " PINNED")
+         {
+          out << "        { " << node << ", ";
+          out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+         }
+         else if (boundCond.bcAxisymmetric == " ENCASTRE")
+         {
+          out << "        { " << node << ", ";
+          out << " nil, 0 }, -- " << boundCond.bcName << std::endl;
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+
+  if (dispTitle2)
+  {
+   out << "    }" << std::endl;
+   out << "}" << std::endl << std::endl;
+  }
  }
 }
 

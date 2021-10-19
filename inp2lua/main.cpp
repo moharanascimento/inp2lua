@@ -82,7 +82,7 @@ void readFile(std::string filePath)
    printersModel::printMeshElements(fileOut, elements, sections, materials, sets);
    printersModel::printBCEdges(fileOut, loads, surface);
    printersModel::printMesh(fileOut, elements, surface, loads);
-   printersModel::printBoundaryConditions(fileOut, loads,setLBC, boundaryConditions);
+   printersModel::printBoundaryConditions(fileOut, loads,setLBC, boundaryConditions, steps);
    printersModel::printSignature(fileOut);
    fileOut.close();
   }
@@ -91,5 +91,5 @@ void readFile(std::string filePath)
 
 int main()
 {
- readFile("Modelo_1_Strain_Job.inp");
+ readFile("Job-3.inp");
 }
