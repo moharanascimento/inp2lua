@@ -259,3 +259,69 @@ void printersSolution::printSolver(std::ofstream& out, std::vector<step> steps)
   }
  }
 }
+
+void printersSolution::printProcess(std::ofstream& out, std::vector<load> loads)
+{
+ if (out.is_open())
+ {
+  out << "-------------------------------------------------------------" << std::endl;
+  out << "--  Process execution script" << std::endl;
+  out << "-------------------------------------------------------------" << std::endl;
+
+  out << "function ProcessScript()" << std::endl;
+  out << "   os.execute('if not exist out mkdir out')" << std::endl;
+
+  std::string stepName;
+
+  for (load l : loads)
+  {
+   stepName = l.loadStep;
+   break;
+  }
+
+  out << "   io.print('------" << stepName << "-------')" << std::endl;
+  out << "   local file = io.prepareMeshFile('mesh', '$SIMULATIONDIR/out/$SIMULATIONNAME', 'nf', {'u',}, {'S', 'E',}, {allstates = true, split = true, saveDisplacements = true})" << std::endl;
+  out << "   -- Create the solver model - " << stepName << std::endl;
+  out << "   local solver = fem.init({'" << stepName << "',}, 'solver', solverOptions" << stepName << ")" << std::endl;
+  out << "   local wfileSta = io.open(translatePath('$SIMULATIONDIR/out/$SIMULATIONNAME.sta'), \"w + \")" << std::endl;
+  out << "   wfileSta:write( ' SUMMARY OF JOB INFORMATION:', '\\n')" << std::endl;
+  out << "   wfileSta:write( ' INC     ATT  EQUIL   TOTAL     INC OF', '\\n')" << std::endl;
+  out << "   wfileSta:write( '              ITERS   TIME     TIME/LPF', '\\n')" << std::endl;
+  out << "   local countP = 0" << std::endl;
+  out << "   local frequency = solverOptions" << stepName << ".Frequency    -- print each frequency the increments " << std::endl;
+  out << "   local dt        = solverOptions" << stepName << ".timeInitIncrement" << std::endl;
+  out << "   local FinalTime = solverOptions" << stepName << ".timeMax" << std::endl;
+  out << "   local Time      = 0" << std::endl;
+  out << "   local LastStep  = false" << std::endl;
+  out << "   local countAttemp = 0" << std::endl;
+  out << "   local iterMax   = solverOptions" << stepName << ".iterationsMax" << std::endl;
+  out << "   io.addResultToMeshFile(file, 0)" << std::endl;
+  out << std::endl;
+  out << "   while (Time < FinalTime) do  " << std::endl;
+  out << "      -- Adjust time to guarantee that the last iteration will be on the " << std::endl;
+  out << "      -- requested final simulation time   " << std::endl;
+  out << "      if (Time + dt > FinalTime) then dt   = FinalTime - Time end        " << std::endl;
+  out << "      io.print(tr('DTime= %1 s') :num(dt))          " << std::endl;
+  out << "      local newdt,err,conv,niter = fem.step(solver, dt, true)" << std::endl;
+  out << "      wfileSta:write(string.format('%s%5d%s%2d%s%5d%s%11.4e%s%11.4e\\n',' ', countP,' ',countAttemp,' ',niter,' ',Time,' ', dt  )) " << std::endl;
+  out << "      if(conv)then" << std::endl;
+  out << "         Time = Time +  dt  " << std::endl;
+  out << "         io.print(tr('Time Step = %1 s') :num(Time)) " << std::endl;
+  out << "         countAttemp = 0" << std::endl;
+  out << "         countP = countP + 1" << std::endl;
+  out << "         if( countP % frequency == 0 or Time==FinalTime)then" << std::endl;
+  out << "            io.addResultToMeshFile(file, Time)" << std::endl;
+  out << "         end                         " << std::endl;
+  out << "         dt = adaptativeTime(dt,err,conv,niter,countAttemp,solverOptions" << stepName << ")  " << std::endl;
+  out << "      else" << std::endl;
+  out << "         setCurrentTime(Time)             " << std::endl;
+  out << "         countAttemp = countAttemp + 1" << std::endl;
+  out << "         dt = adaptativeTime(dt,err,conv,iterMax,countAttemp,solverOptions" << stepName << ")" << std::endl;
+  out << "      end" << std::endl;
+  out << "   end" << std::endl;
+  out << "   io.closeMeshFile(file)" << std::endl;
+  out << "   io.close(wfileSta)" << std::endl;
+  out << " end" << std::endl;
+  out << std::endl;
+ }
+}

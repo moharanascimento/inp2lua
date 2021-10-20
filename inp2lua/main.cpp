@@ -110,6 +110,7 @@ void readFile(std::string filePath)
    printersSolution::printPhysical(fileOutSolution, steps, elements, sections, materials, sets, boundaryConditions, loads);
    printersSolution::printDoFile(fileOutSolution);
    printersSolution::printSolver(fileOutSolution, steps);
+   printersSolution::printProcess(fileOutSolution, loads);
    printersModel::printSignature(fileOutSolution);
    fileOutSolution.close();
   }
@@ -129,5 +130,5 @@ void readFile(std::string filePath)
 
 int main()
 {
- readFile("Modelo_1_Strain_Job.inp");
+ readFile("Job-3.inp");
 }
