@@ -6,6 +6,7 @@
 #include "printers_model.h"
 #include "printers_lua.h"
 #include "printers_solution.h"
+#include "printers_aux_data.h"
 #include "readers.h"
 
 void readFile(std::string filePath)
@@ -113,8 +114,18 @@ void readFile(std::string filePath)
    fileOutSolution.close();
   }
 
+  // write the aux data file
+  std::ofstream fileOutAux("AuxData.lua");
+  if (fileOutAux.is_open())
+  {
+   printersAuxData::printAuxData(fileOutAux);
+   fileOutAux.close();
+  }
+
  }
 }
+
+
 
 int main()
 {

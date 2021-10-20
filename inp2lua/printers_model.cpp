@@ -495,8 +495,6 @@ void printersModel::printBoundaryConditions(std::ofstream& out, std::vector<load
 
    cloadTitle = false;
    pressureTitle = false;
-//   std::unordered_set<load, utils::loadHash, utils::equalHash> loadWithoutDuplicate;
-//   for (load l : loads) loadWithoutDuplicate.insert(l);
 
    for (load l : loads)
    {

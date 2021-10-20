@@ -65,6 +65,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="objects.h" />
+    <ClInclude Include="printers_aux_data.h" />
     <ClInclude Include="printers_lua.h" />
     <ClInclude Include="printers_model.h" />
     <ClInclude Include="printers_solution.h" />
@@ -74,6 +75,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objects.cpp" />
+    <ClCompile Include="printers_aux_data.cpp" />
     <ClCompile Include="printers_lua.cpp" />
     <ClCompile Include="printers_model.cpp" />
     <ClCompile Include="printers_solution.cpp" />
