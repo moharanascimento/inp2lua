@@ -658,6 +658,7 @@ std::vector<step> readers::listOfSteps(std::ifstream& file, std::string& line)
 
   std::vector<std::string> name = split(line, "STEP: ");
   stepName = name[1];
+  stepName = stringRemove(stepName, "-");
   s_stepName = stepName;
 
   while (std::getline(file, line))

@@ -27,6 +27,12 @@
     <ClInclude Include="printers_model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="printers_lua.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="printers_solution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="objects.cpp">
@@ -42,6 +48,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="printers_model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="printers_lua.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="printers_solution.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

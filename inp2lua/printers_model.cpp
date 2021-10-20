@@ -295,7 +295,7 @@ void printersModel::printMeshElements(std::ofstream& out, std::vector<element> e
       gemaElementType = "Quadrilateral";
       gemaElementName = "'quad8'";
      }
-     else if (e.elementType == "CPE3" || e.elementType == "CPE3H" | e.elementType == "CPS3")
+     else if (e.elementType == "CPE3" || e.elementType == "CPE3H" || e.elementType == "CPS3")
      {
       gemaElementType = "Triangular";
       gemaElementName = "'tri3'";
@@ -418,10 +418,9 @@ void printersModel::printMesh(std::ofstream& out, std::vector<element> elements,
    else if (e.elementType == "CPE8R" || e.elementType == "CPE8RH" ||
             e.elementType == "CPS8RH" || e.elementType == "CPS8R")
    {
-    hasQuad8 = true;
+    hasQuad8R = true;
    }
    else if (e.elementType == "CPE8" || e.elementType == "CPE8H" || 
-    e.elementType == "CPE8IH" || e.elementType == "CP84I" ||
     e.elementType == "CPS8H" || e.elementType == "CPS8")
    {
     hasQuad8 = true;

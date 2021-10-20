@@ -130,7 +130,7 @@ Mesh {
 --  Boundary conditions
 -------------------------------------------------------------
 BoundaryCondition {
-    id   = 'cloadStep-2',
+    id   = 'cloadStep2',
     type = 'node concentrated forces',
     mesh = 'mesh',
     properties  = {
@@ -142,7 +142,7 @@ BoundaryCondition {
 }
 
 BoundaryCondition {
-    id   = 'pEdgesStep-2',
+    id   = 'pEdgesStep2',
     type = 'pressure load',
     mesh = 'mesh',
     properties  = {
@@ -157,7 +157,7 @@ BoundaryCondition {
 }
 
 BoundaryCondition {
-    id   = 'dispStep-2',
+    id   = 'dispStep2',
     type = 'node displacements',
     mesh = 'mesh',
     properties  = {

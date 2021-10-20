@@ -4,6 +4,8 @@
 #include <vector>
 #include "objects.h"
 #include "printers_model.h"
+#include "printers_lua.h"
+#include "printers_solution.h"
 #include "readers.h"
 
 void readFile(std::string filePath)
@@ -70,7 +72,10 @@ void readFile(std::string filePath)
    }
   } 
   file.close();
+
+  // write the model file
   std::ofstream fileOut("Modelo_model.lua");
+
   if (fileOut.is_open())
   {
    printersModel::printHeader(fileOut);
@@ -86,6 +91,26 @@ void readFile(std::string filePath)
    printersModel::printSignature(fileOut);
    fileOut.close();
   }
+
+  // write the lua file
+  std::ofstream fileOutLua("Modelo.lua");
+  if (fileOutLua.is_open())
+  {
+   printersLua::printHeaderLua(fileOutLua);
+   printersModel::printSignature(fileOutLua);
+   fileOutLua.close();
+  }
+
+  // write the solution file
+  std::ofstream fileOutSolution("Modelo_solution.lua");
+  if (fileOutSolution.is_open())
+  {
+   printersSolution::printHeaderSolution(fileOutSolution);
+   printersSolution::printPhysical(fileOutSolution, steps, elements, sections, materials, sets, boundaryConditions, loads);
+   printersModel::printSignature(fileOutSolution);
+   fileOutSolution.close();
+  }
+
  }
 }
 
