@@ -223,3 +223,39 @@ void printersSolution::printPhysical(std::ofstream& out, std::vector<step> steps
   }
  }
 }
+
+void printersSolution::printDoFile(std::ofstream& out)
+{
+ if (out.is_open())
+ {
+  out << "dofile('$SIMULATIONDIR/AuxData.lua')" << std::endl << std::endl;
+ }
+}
+
+void printersSolution::printSolver(std::ofstream& out, std::vector<step> steps)
+{
+ if (out.is_open())
+ {
+  out << "-------------------------------------------------------------" << std::endl;
+  out << "--  Solver options" << std::endl;
+  out << "-------------------------------------------------------------" << std::endl;
+
+  for (step s : steps)
+  {
+   out << "local solverOpitions" << s.stepName << " = {" << std::endl;
+   out << "  type               = 'transient nonlinear'" << std::endl;
+   out << "  timeMax            = " << s.stepTotal << "," << std::endl;
+   out << "  timeInitIncrement  = " << s.stepInit << "," << std::endl;
+   out << "  timeMinIncrement   = " << s.stepMin << "," << std::endl;
+   out << "  timeMaxIncrement   = " << s.stepMax << "," << std::endl;
+   out << "  iterationsMax      = 100," << std::endl;
+   out << "  eulerTheta         = 1.000E+00," << std::endl;
+   out << "  attemptMax         = 10,  " << std::endl;
+   out << "  tolerance          ={mechanic =1.000E-05,}," << std::endl;
+   out << "  newtonRaphsonMode      = 'full'," << std::endl;
+   out << "  Increment_Time_Factor = 2," << std::endl;
+   out << "  Frequency = 1," << std::endl;
+   out << "}" << std::endl << std::endl;
+  }
+ }
+}

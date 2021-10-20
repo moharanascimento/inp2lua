@@ -14,6 +14,8 @@ public:
                            std::vector<element> elements, std::vector<sectionAtributtes> sections, 
                            std::vector<material> materials, std::vector<setAtributtes> sets, 
                            std::vector<boundaryConditions> bc, std::vector<load> loads);
+ static void printDoFile(std::ofstream& out);
+ static void printSolver(std::ofstream& out, std::vector<step> steps);
 };
 
 #endif
