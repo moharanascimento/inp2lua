@@ -383,12 +383,27 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
     }
     else
     {
-     std::getline(file, line);
-     std::vector<std::string> listEl = split(line, ",");
-     std::vector<std::string> filtered;
-     std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
-     setElemBC.insert(setElemBC.begin(), filtered.begin(), filtered.end());
+     //colocar while
+     while (std::getline(file, line))
+     {
+      if (stringContain(line, "*"))
+       break;
+
+      std::vector<std::string> listEl = split(line, ",");
+      std::vector<std::string> filtered;
+      std::copy_if(listEl.begin(), listEl.end(), std::back_inserter(filtered), [](std::string s){return !s.empty(); });
+      setElemBC.insert(setElemBC.begin(), filtered.begin(), filtered.end());
+     }
     }
+   }
+
+   if (stringContain(line, "*Nset"))
+   {
+    if (!setElemBC.empty())
+     setOfLoadAndBC.emplace_back(setNodesBC, setElemBC, setNameBC);
+    else if (setElemBC.empty() && !setNodesBC.empty())
+     setOfLoadAndBC.emplace_back(setNodesBC, setNameBC);
+    continue;
    }
 
    if (!setElemBC.empty())
@@ -397,6 +412,9 @@ std::vector<setOfLoadAndBC> readers::listOfSetsOfLoadAndBC(std::ifstream& file, 
     setOfLoadAndBC.emplace_back(setNodesBC, setNameBC);
 
   if (stringContain(line, "internal"))
+   return setOfLoadAndBC;
+
+  if (stringContain(line, "*End Assembly"))
    return setOfLoadAndBC;
 
   std::getline(file, line);

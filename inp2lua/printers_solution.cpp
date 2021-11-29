@@ -97,6 +97,11 @@ void printersSolution::printPhysical(std::ofstream& out, std::vector<step> steps
       gemaElementType = "Triangular";
       gemaPlane = "PlaneStress";
      }
+     else if (e.elementType == "CAX4R" || e.elementType == "CAX4")
+     {
+      gemaElementType = "Quadrilateral";
+      gemaPlane = "Axisymmetric";
+     }
      else
      {
       gemaElementType = "Triangular";
@@ -242,8 +247,8 @@ void printersSolution::printSolver(std::ofstream& out, std::vector<step> steps)
 
   for (step s : steps)
   {
-   out << "local solverOpitions" << s.stepName << " = {" << std::endl;
-   out << "  type               = 'transient nonlinear'" << std::endl;
+   out << "local solverOptions" << s.stepName << " = {" << std::endl;
+   out << "  type               = 'transient nonlinear'," << std::endl;
    out << "  timeMax            = " << s.stepTotal << "," << std::endl;
    out << "  timeInitIncrement  = " << s.stepInit << "," << std::endl;
    out << "  timeMinIncrement   = " << s.stepMin << "," << std::endl;
@@ -251,7 +256,7 @@ void printersSolution::printSolver(std::ofstream& out, std::vector<step> steps)
    out << "  iterationsMax      = 100," << std::endl;
    out << "  eulerTheta         = 1.000E+00," << std::endl;
    out << "  attemptMax         = 10,  " << std::endl;
-   out << "  tolerance          ={mechanic =1.000E-05,}," << std::endl;
+   out << "  tolerance          ={mechanic =1.000E-03,}," << std::endl;
    out << "  newtonRaphsonMode      = 'full'," << std::endl;
    out << "  Increment_Time_Factor = 2," << std::endl;
    out << "  Frequency = 1," << std::endl;
@@ -260,7 +265,7 @@ void printersSolution::printSolver(std::ofstream& out, std::vector<step> steps)
  }
 }
 
-void printersSolution::printProcess(std::ofstream& out, std::vector<load> loads)
+void printersSolution::printProcess(std::ofstream& out, std::vector<load> loads, std::vector<step> steps)
 {
  if (out.is_open())
  {
@@ -279,11 +284,19 @@ void printersSolution::printProcess(std::ofstream& out, std::vector<load> loads)
    break;
   }
 
+  if (loads.empty())
+  {
+   for (step s : steps)
+   {
+    stepName = s.stepName;
+   }
+  }
+
   out << "   io.print('------" << stepName << "-------')" << std::endl;
   out << "   local file = io.prepareMeshFile('mesh', '$SIMULATIONDIR/out/$SIMULATIONNAME', 'nf', {'u',}, {'S', 'E',}, {allstates = true, split = true, saveDisplacements = true})" << std::endl;
   out << "   -- Create the solver model - " << stepName << std::endl;
   out << "   local solver = fem.init({'" << stepName << "',}, 'solver', solverOptions" << stepName << ")" << std::endl;
-  out << "   local wfileSta = io.open(translatePath('$SIMULATIONDIR/out/$SIMULATIONNAME.sta'), \"w + \")" << std::endl;
+  out << "   local wfileSta = io.open(translatePath('$SIMULATIONDIR/out/$SIMULATIONNAME.sta'), \"w+\")" << std::endl;
   out << "   wfileSta:write( ' SUMMARY OF JOB INFORMATION:', '\\n')" << std::endl;
   out << "   wfileSta:write( ' INC     ATT  EQUIL   TOTAL     INC OF', '\\n')" << std::endl;
   out << "   wfileSta:write( '              ITERS   TIME     TIME/LPF', '\\n')" << std::endl;

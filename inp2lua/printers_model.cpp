@@ -203,6 +203,7 @@ void printersModel::printElementGroups(std::ofstream& out, std::vector<element> 
     e.elementType == "CPS4H" || e.elementType == "CPS4I" ||
     e.elementType == "CPS4IH" || e.elementType == "CPS4RH" ||
     e.elementType == "CPS4" || e.elementType == "CPS4R" ||
+    e.elementType == "CAX4" || e.elementType == "CAX4R" ||
     e.elementType == "CPE8" || e.elementType == "CPE8R" ||
     e.elementType == "CPE8H" || e.elementType == "CP84I" ||
     e.elementType == "CPE8IH" || e.elementType == "CPE8RH" ||
@@ -281,7 +282,8 @@ void printersModel::printMeshElements(std::ofstream& out, std::vector<element> e
       e.elementType == "CPE4IH" || e.elementType == "CPE4RH" ||
       e.elementType == "CPS4H" || e.elementType == "CPS4I" ||
       e.elementType == "CPS4IH" || e.elementType == "CPS4RH" ||
-      e.elementType == "CPS4" || e.elementType == "CPS4R")
+      e.elementType == "CPS4" || e.elementType == "CPS4R" ||
+      e.elementType == "CAX4" || e.elementType == "CAX4R")
      {
       gemaElementType = "Quadrilateral";
       gemaElementName = "'quad4'";
@@ -404,14 +406,14 @@ void printersModel::printMesh(std::ofstream& out, std::vector<element> elements,
   {
 
    if (e.elementType == "CPE4R" || e.elementType == "CPE4RH" ||
-       e.elementType == "CPS4RH" ||e.elementType == "CPS4R")
+       e.elementType == "CPS4RH" ||e.elementType == "CPS4R" || e.elementType == "CAX4R")
    {
     hasQuad4R = true;
    }
    else if (e.elementType == "CPE4" || e.elementType == "CPS4H" ||
     e.elementType == "CPE4H" || e.elementType == "CPE4I" ||
     e.elementType == "CPE4IH" || e.elementType == "CPS4IH" ||
-    e.elementType == "CPS4")
+    e.elementType == "CPS4" || e.elementType == "CAX4")
    {
     hasQuad4 = true;
    }

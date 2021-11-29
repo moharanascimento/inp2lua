@@ -30,44 +30,54 @@ void readFile(std::string filePath)
    std::cout << line << std::endl;
    if (readers::stringContain(line, "*Node"))
    {
+    std::cout << "reading nodes" << std::endl;
     nodes = readers::listOfNodes(file, line);
    }
    if (readers::stringContain(line, "*Element"))
    {
+    std::cout << "reading elements" << std::endl;
     elements = readers::listOfElements(file, line);
    }
    if (readers::stringContain(line, "*Nset"))
    {
+    std::cout << "reading sets" << std::endl;
     sets = readers::listOfSets(file, line);
    }
    if (readers::stringContain(line, "** Section"))
    {
+    std::cout << "reading sections" << std::endl;
     sections = readers::listOfSections(file, line);
    }
-   if (readers::stringContain(line, "*Assembly"))
+   if (readers::stringContain(line, "*End Instance"))
    {
+    std::cout << "reading sets of loads and bc" << std::endl;
     setLBC = readers::listOfSetsOfLoadAndBC(file, line);
    }
    if (readers::stringContain(line, "*Elset, elset=_"))
    {
+    std::cout << "reading surfaces" << std::endl;
     surface = readers::listOfSurfaces(file, line);
    }
    if (readers::stringContain(line, "*Material"))
    {
+    std::cout << "reading materials" << std::endl;
     materials = readers::listOfMaterials(file, line);
    }
    if (readers::stringContain(line, "** STEP"))
    {
+    std::cout << "reading steps" << std::endl;
     std::vector<step> auxSteps = readers::listOfSteps(file, line);
     steps.insert(steps.end(), auxSteps.begin(), auxSteps.end());
    }
    if (readers::stringContain(line, "** BOUNDARY"))
    {
+    std::cout << "reading bc" << std::endl;
     auto auxBond = readers::listOfBoundaryConditions(file, line);
     boundaryConditions.insert(boundaryConditions.end(), auxBond.begin(), auxBond.end());
    }
    if (readers::stringContain(line, "** LOADS"))
    {
+    std::cout << "reading loads" << std::endl;
     auto auxLoads = readers::listOfLoads(file, line);
     loads.insert(loads.end(), auxLoads.begin(), auxLoads.end());
    }
@@ -110,7 +120,7 @@ void readFile(std::string filePath)
    printersSolution::printPhysical(fileOutSolution, steps, elements, sections, materials, sets, boundaryConditions, loads);
    printersSolution::printDoFile(fileOutSolution);
    printersSolution::printSolver(fileOutSolution, steps);
-   printersSolution::printProcess(fileOutSolution, loads);
+   printersSolution::printProcess(fileOutSolution, loads, steps);
    printersModel::printSignature(fileOutSolution);
    fileOutSolution.close();
   }

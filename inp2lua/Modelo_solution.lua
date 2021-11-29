@@ -28,8 +28,8 @@ dofile('$SIMULATIONDIR/AuxData.lua')
 -------------------------------------------------------------
 --  Solver options
 -------------------------------------------------------------
-local solverOpitionsStep1 = {
-  type               = 'transient nonlinear'
+local solverOptionsStep1 = {
+  type               = 'transient nonlinear',
   timeMax            =  1.,
   timeInitIncrement  = 1.,
   timeMinIncrement   =  1e-05,
@@ -37,14 +37,14 @@ local solverOpitionsStep1 = {
   iterationsMax      = 100,
   eulerTheta         = 1.000E+00,
   attemptMax         = 10,  
-  tolerance          ={mechanic =1.000E-05,},
+  tolerance          ={mechanic =1.000E-03,},
   newtonRaphsonMode      = 'full',
   Increment_Time_Factor = 2,
   Frequency = 1,
 }
 
-local solverOpitionsStep2 = {
-  type               = 'transient nonlinear'
+local solverOptionsStep2 = {
+  type               = 'transient nonlinear',
   timeMax            =  1.,
   timeInitIncrement  = 1.,
   timeMinIncrement   =  1e-05,
@@ -52,7 +52,7 @@ local solverOpitionsStep2 = {
   iterationsMax      = 100,
   eulerTheta         = 1.000E+00,
   attemptMax         = 10,  
-  tolerance          ={mechanic =1.000E-05,},
+  tolerance          ={mechanic =1.000E-03,},
   newtonRaphsonMode      = 'full',
   Increment_Time_Factor = 2,
   Frequency = 1,
@@ -67,7 +67,7 @@ function ProcessScript()
    local file = io.prepareMeshFile('mesh', '$SIMULATIONDIR/out/$SIMULATIONNAME', 'nf', {'u',}, {'S', 'E',}, {allstates = true, split = true, saveDisplacements = true})
    -- Create the solver model - Step2
    local solver = fem.init({'Step2',}, 'solver', solverOptionsStep2)
-   local wfileSta = io.open(translatePath('$SIMULATIONDIR/out/$SIMULATIONNAME.sta'), "w + ")
+   local wfileSta = io.open(translatePath('$SIMULATIONDIR/out/$SIMULATIONNAME.sta'), "w+")
    wfileSta:write( ' SUMMARY OF JOB INFORMATION:', '\n')
    wfileSta:write( ' INC     ATT  EQUIL   TOTAL     INC OF', '\n')
    wfileSta:write( '              ITERS   TIME     TIME/LPF', '\n')

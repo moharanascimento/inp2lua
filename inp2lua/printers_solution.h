@@ -16,7 +16,7 @@ public:
                            std::vector<boundaryConditions> bc, std::vector<load> loads);
  static void printDoFile(std::ofstream& out);
  static void printSolver(std::ofstream& out, std::vector<step> steps);
- static void printProcess(std::ofstream& out, std::vector<load> loads);
+ static void printProcess(std::ofstream& out, std::vector<load> loads, std::vector<step> steps);
 };
 
 #endif
